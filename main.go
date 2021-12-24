@@ -1,7 +1,7 @@
 package main
 
 import (
-	"coursebench-backend/database"
+	"coursebench-backend/pkg/database"
 	"fmt"
 )
 

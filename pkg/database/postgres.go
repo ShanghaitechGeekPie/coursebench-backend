@@ -1,6 +1,7 @@
 package database
 
 import (
+	"coursebench-backend/pkg/modelRegister"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,10 +20,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	/*err = db.Migrator().AutoMigrate(_modelRegister.GetRegisteredTypes()...)
+	err = db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {
-	panic(err)
-	}*/
+		panic(err)
+	}
 }
 
 func GetDB() *gorm.DB {
