@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/go-redis/redis/v8 v8.11.4
+	github.com/lib/pq v1.10.2
 	github.com/pkg/errors v0.9.1
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.4

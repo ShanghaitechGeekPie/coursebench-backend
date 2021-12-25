@@ -10,7 +10,7 @@ type Teacher struct {
 	Name         string
 	Job          string
 	Introduction string
-	Course       []Course
+	Course       []*Course `gorm:"many2many:course_teachers;"`
 }
 
 func init() {

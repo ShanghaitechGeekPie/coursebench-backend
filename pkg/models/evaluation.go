@@ -8,10 +8,11 @@ import (
 
 type Evaluation struct {
 	gorm.Model
+	UserID              uint
 	User                User
-	Course              Course
+	CourseID            uint
 	Semester            int
-	Scores              pq.Int64Array
+	Scores              pq.Int64Array `gorm:"type:bigint[]"`
 	Title               string
 	Comment             string
 	StudentScoreNumber  int

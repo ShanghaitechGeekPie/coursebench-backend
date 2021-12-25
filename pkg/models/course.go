@@ -8,10 +8,10 @@ import (
 
 type Course struct {
 	gorm.Model
-	Teachers    []Teacher
+	Teachers    []*Teacher `gorm:"many2many:course_teachers;"`
 	Name        string
 	Code        string
-	Scores      pq.Int64Array
+	Scores      pq.Int64Array `gorm:"type:bigint[]"`
 	Evaluations []Evaluation
 }
 
