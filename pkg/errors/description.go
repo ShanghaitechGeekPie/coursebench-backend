@@ -21,18 +21,13 @@ var (
 	GobDecodingError    = createDescription("GobDecodingError", "服务器内部错误", ERROR)
 
 	// InvalidRequest 等错误:请求完成,但是产生了业务上的错误
-	InvalidRequest          = createDescription("InvalidRequest", "请求非法", SILENT)
-	UserDoNotExist          = createDescription("UserDoNotExist", "未找到用户", SILENT)
-	UserNameDuplicated      = createDescription("UserNameDuplicated", "用户名重复", SILENT)
-	StyleDoNotExist         = createDescription("StyleDoNotExist", "风格不存在", SILENT)
-	SharerHasNotViewedStyle = createDescription("SharerHasNotViewedStyle", "被分享者没有看过此风格", SILENT)
-	HaveViewedStyle         = createDescription("HaveViewedStyle", "此风格已被看过", SILENT)
-	BoardDoNotExist         = createDescription("BoardDoNotExist", "未找到画板", SILENT)
-	AlreadyCheckedIn        = createDescription("AlreadyCheckedIn", "您已经签过到了", SILENT)
-	InvalidJWT              = createDescription("InvalidJWT", "登陆凭据无效或过期", SILENT)
+	InvalidRequest      = createDescription("InvalidRequest", "请求非法", SILENT)
+	UserDoNotExist      = createDescription("UserDoNotExist", "未找到用户", SILENT)
+	UserAlreadyExists   = createDescription("UserAlreadyExists", "用户已存在", SILENT)
+	UserEmailDuplicated = createDescription("UserEmailDuplicated", "用户邮箱重复", SILENT)
+	InvalidArgument     = createDescription("InvalidArgument", "参数非法", SILENT)
 
 	StyleAttrServiceError = createDescription("StyleAttrServiceError", "服务器内部错误", ERROR)
 	UnCaughtError         = createDescription("UnCaughtError", "服务器内部错误", FATAL)
 	FailedToGetRedisLock  = createDescription("FailedToGetRedisLock", "服务器繁忙", SILENT)
-	StyleDuplicated       = createDescription("StyleDuplicated", "您已经分享过风格", SILENT)
 )
