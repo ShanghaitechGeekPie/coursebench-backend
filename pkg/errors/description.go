@@ -21,11 +21,11 @@ var (
 	GobDecodingError    = createDescription("GobDecodingError", "服务器内部错误", ERROR)
 
 	// InvalidRequest 等错误:请求完成,但是产生了业务上的错误
-	InvalidRequest        = createDescription("InvalidRequest", "请求非法", SILENT)
-	UserDoNotExist        = createDescription("UserDoNotExist", "未找到用户", SILENT)
-	UserAlreadyExists     = createDescription("UserAlreadyExists", "用户已存在", SILENT)
-	UserEmailDuplicated   = createDescription("UserEmailDuplicated", "用户邮箱重复", SILENT)
-	UserPasswordIncorrect = createDescription("UserPasswordIncorrect", "用户密码错误", SILENT)
+	InvalidRequest        = createDescription("InvalidRequest", "请求非法", SILENT, 400)
+	UserDoNotExist        = createDescription("UserDoNotExist", "未找到用户", SILENT, 400)
+	UserAlreadyExists     = createDescription("UserAlreadyExists", "用户已存在", SILENT, 400)
+	UserEmailDuplicated   = createDescription("UserEmailDuplicated", "用户邮箱重复", SILENT, 400)
+	UserPasswordIncorrect = createDescription("UserPasswordIncorrect", "用户密码错误", SILENT, 400)
 
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT)
 
