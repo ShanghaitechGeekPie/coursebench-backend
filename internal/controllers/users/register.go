@@ -2,10 +2,11 @@ package users
 
 import (
 	"coursebench-backend/pkg/models"
+	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
 )
 
-type RegisterUser struct {
+type RegisterRequest struct {
 	Email    string           `json:"email"`
 	Password string           `json:"password"`
 	Year     int              `json:"year"`
@@ -13,24 +14,23 @@ type RegisterUser struct {
 }
 
 func Register(c *fiber.Ctx) (err error) {
-	var userReq RegisterUser
-	println("!")
+	c.Accepts("application/json")
+	var userReq RegisterRequest
 	if err = c.BodyParser(&userReq); err != nil {
 		return
 	}
-	println("?")
 	user := models.User{
 		Email:    userReq.Email,
 		Password: userReq.Password,
 		Year:     userReq.Year,
 		Grade:    userReq.Grade,
 	}
-	if err = user.Register(); err != nil {
+	if err = queries.Register(&user); err != nil {
 		return
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  nil,
+		Data:  map[string]interface{}{"UserID": user.ID},
 		Error: false,
 	})
 }
