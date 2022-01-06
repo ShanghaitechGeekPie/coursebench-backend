@@ -4,6 +4,7 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"github.com/gofiber/fiber/v2"
+	"log"
 )
 
 var maxByteSize int
@@ -18,7 +19,6 @@ func init() {
 }
 
 func errorHandler(c *fiber.Ctx, err error) error {
-	code := fiber.StatusInternalServerError
 
 	// Set Content-Type: text/plain; charset=utf-8
 	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
@@ -28,6 +28,7 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	if !ok {
 		userError = errors.Wrap(err, errors.UnCaughtError).(errors.UserError)
 	}
+	log.Printf("%s, %s, %s, %s\n", userError.Error(), userError.Name(), userError.Cause().Error(), userError.Stacktrace())
 
 	// TODO: Log error
 	/*
@@ -37,7 +38,7 @@ func errorHandler(c *fiber.Ctx, err error) error {
 		}*/
 
 	// Return status code with error message
-	return c.Status(code).JSON(models.ErrorResponse{
+	return c.Status(userError.StatusCode()).JSON(models.ErrorResponse{
 		Timestamp: userError.Time(),
 		Errno:     userError.Errno(),
 		Message:   userError.Error(),

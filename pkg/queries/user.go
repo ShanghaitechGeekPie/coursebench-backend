@@ -16,16 +16,16 @@ func Register(u *models.User) error {
 
 	// 检查输入合法
 	if !CheckPassword(u.Password) {
-		return errors.InvalidArgument
+		return errors.New(errors.InvalidArgument)
 	}
 	if !CheckYear(u.Year) {
-		return errors.InvalidArgument
+		return errors.New(errors.InvalidArgument)
 	}
 	if !CheckGrade(u.Grade) {
-		return errors.InvalidArgument
+		return errors.New(errors.InvalidArgument)
 	}
 	if !CheckEmail(u.Email) {
-		return errors.InvalidArgument
+		return errors.New(errors.InvalidArgument)
 	}
 
 	// 检查邮箱是否已存在
@@ -34,7 +34,7 @@ func Register(u *models.User) error {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 	if result.RowsAffected > 0 {
-		return errors.UserEmailDuplicated
+		return errors.New(errors.UserEmailDuplicated)
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
@@ -54,10 +54,10 @@ func Login(email, password string) (*models.User, error) {
 
 	// 检查输入合法
 	if !CheckEmail(email) {
-		return nil, errors.InvalidArgument
+		return nil, errors.New(errors.InvalidArgument)
 	}
 	if !CheckPassword(password) {
-		return nil, errors.InvalidArgument
+		return nil, errors.New(errors.InvalidArgument)
 	}
 
 	user := &models.User{}
@@ -67,7 +67,7 @@ func Login(email, password string) (*models.User, error) {
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.UserDoNotExist
+		return nil, errors.New(errors.UserDoNotExist)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {

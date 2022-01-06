@@ -11,6 +11,7 @@ type description struct {
 	name    string
 	message string
 	errno   string
+	status  int
 }
 
 func (d *description) Name() string {
@@ -25,16 +26,27 @@ func (d *description) Errno() string {
 	return d.errno
 }
 
+func (d *description) StatusCode() int {
+	return d.status
+}
+
 var errorDescriptionList = make([]*description, 0)
 
 var errnoGeneratorInstance = newErrnoSequenceGenerator()
 
-func createDescription(name, errorMessage string, option Option) (errorDescription *description) {
+func createDescription(name, errorMessage string, option Option, status ...int) (errorDescription *description) {
+	statusCode := 500
+	for _, statusCode = range status {
+		if statusCode < 100 || statusCode > 600 {
+			panic(fmt.Sprintf("status code %d is not in the range of 100-600", statusCode))
+		}
+	}
 	errorDescription = &description{
 		name:    name,
 		Option:  option,
 		message: errorMessage,
 		errno:   errnoGeneratorInstance.Value(),
+		status:  statusCode,
 	}
 	errnoGeneratorInstance = errnoGeneratorInstance.Next()
 	errorDescriptionList = append(errorDescriptionList, errorDescription)
@@ -83,6 +95,7 @@ type UserError interface {
 	Cause() error
 	Time() time.Time
 	Stacktrace() string
+	StatusCode() int
 	Option
 }
 
