@@ -26,9 +26,10 @@ var (
 	UserAlreadyExists     = createDescription("UserAlreadyExists", "用户已存在", SILENT, 400)
 	UserEmailDuplicated   = createDescription("UserEmailDuplicated", "用户邮箱重复", SILENT, 400)
 	UserPasswordIncorrect = createDescription("UserPasswordIncorrect", "用户密码错误", SILENT, 400)
+	UserNotLogin          = createDescription("UserNotLogin", "用户未登录", SILENT, 400)
 
-	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT)
+	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
 
-	UnCaughtError        = createDescription("UnCaughtError", "服务器内部错误", FATAL)
-	FailedToGetRedisLock = createDescription("FailedToGetRedisLock", "服务器繁忙", SILENT)
+	UnCaughtError        = createDescription("UnCaughtError", "服务器内部错误", FATAL, 500)
+	FailedToGetRedisLock = createDescription("FailedToGetRedisLock", "服务器繁忙", SILENT, 500)
 )

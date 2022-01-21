@@ -10,5 +10,6 @@ func Routes(app *fiber.App) {
 	route := app.Group("/v1")
 	route.Use(cors.New())
 	controllers.UserRoutes(route)
+	controllers.TestRoutes(route)
 
 }
