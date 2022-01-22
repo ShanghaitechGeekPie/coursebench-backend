@@ -23,6 +23,10 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	// Set Content-Type: text/plain; charset=utf-8
 	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
 
+	if err == fiber.ErrMethodNotAllowed {
+		err = errors.Wrap(err, errors.InvalidRequest)
+	}
+
 	userError, ok := err.(errors.UserError)
 
 	if !ok {
