@@ -107,6 +107,33 @@ func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, r
 	return
 }
 
+func UpdatePassword(id uint, oldPassword string, newPassword string) (err error) {
+	db := database.GetDB()
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	if !CheckPassword(oldPassword) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if !CheckPassword(newPassword) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+		return errors.Wrap(err, errors.UserPasswordIncorrect)
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.Wrap(err, errors.InternalServerError)
+	}
+	user.Password = string(hash)
+	err = db.Save(user).Error
+	if err != nil {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	return
+}
+
 func GetUserByID(id uint) (*models.User, error) {
 	db := database.GetDB()
 
