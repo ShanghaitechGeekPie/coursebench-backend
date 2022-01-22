@@ -13,6 +13,15 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginResponse struct {
+	UserID   uint             `json:"user_id"`
+	Email    string           `json:"email"`
+	Year     int              `json:"year"`
+	Grade    models.GradeType `json:"grade"`
+	NickName string           `json:"nickname"`
+	RealName string           `json:"realname"`
+}
+
 func Login(c *fiber.Ctx) (err error) {
 	c.Accepts("application/json")
 	var request LoginRequest
@@ -38,8 +47,17 @@ func Login(c *fiber.Ctx) (err error) {
 		return
 	}*/
 
+	response := LoginResponse{
+		UserID:   user.ID,
+		Email:    user.Email,
+		Year:     user.Year,
+		Grade:    user.Grade,
+		NickName: user.NickName,
+		RealName: user.RealName,
+	}
+
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  map[string]interface{}{"UserID": user.ID},
+		Data:  response,
 		Error: false,
 	})
 }

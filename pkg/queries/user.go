@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"strings"
 	"time"
+	"unicode"
 )
 
 func Register(u *models.User) error {
@@ -77,6 +78,35 @@ func Login(email, password string) (*models.User, error) {
 	return user, nil
 }
 
+func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, realname string) (err error) {
+	db := database.GetDB()
+	user, err := GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	if !CheckYear(year) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if !CheckGrade(grade) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if !CheckNickName(nickname) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if !CheckRealName(realname) {
+		return errors.New(errors.InvalidArgument)
+	}
+	user.Year = year
+	user.Grade = grade
+	user.NickName = nickname
+	user.RealName = realname
+	err = db.Save(user).Error
+	if err != nil {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	return
+}
+
 func GetUserByID(id uint) (*models.User, error) {
 	db := database.GetDB()
 
@@ -119,6 +149,32 @@ func CheckPassword(password string) bool {
 	}
 	for _, c := range password {
 		if (c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && !strings.Contains("!@#$%^&*()-_=+{}[]|\\:;'<>,.?/~`", string(c)) {
+			return false
+		}
+	}
+	return true
+}
+
+func CheckNickName(nickname string) bool {
+	if len(nickname) < 2 || len(nickname) > 20 {
+		return false
+	}
+	r := []rune(nickname)
+	for _, c := range r {
+		if !unicode.IsGraphic(c) {
+			return false
+		}
+	}
+	return true
+}
+
+func CheckRealName(realname string) bool {
+	if len(realname) < 2 || len(realname) > 20 {
+		return false
+	}
+	r := []rune(realname)
+	for _, c := range r {
+		if !unicode.IsGraphic(c) {
 			return false
 		}
 	}

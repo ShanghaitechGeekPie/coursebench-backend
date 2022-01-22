@@ -10,4 +10,6 @@ func UserRoutes(r fiber.Router) {
 	route.Post("/register", users.Register)
 	route.Post("/login", users.Login)
 	route.Post("/logout", users.Logout)
+	route.Get("/profile/:id", users.Profile)
+	route.Post("/update_profile", users.UpdateProfile)
 }
