@@ -44,7 +44,7 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	// Return status code with error message
 	return c.Status(userError.StatusCode()).JSON(models.ErrorResponse{
 		Timestamp: userError.Time(),
-		Errno:     userError.Errno(),
+		Errno:     userError.Name(),
 		Message:   userError.Error(),
 		Error:     true,
 	})
