@@ -10,7 +10,7 @@ import (
 var store *session.Store
 
 func init() {
-	store = session.New(session.Config{Expiration: time.Hour * 24 * 2, CookieHTTPOnly: true, CookieSecure: true})
+	store = session.New(session.Config{Expiration: time.Hour * 24 * 2, CookieHTTPOnly: false, CookieSecure: false})
 }
 
 func GetStore() *session.Store {

@@ -77,6 +77,21 @@ func Login(email, password string) (*models.User, error) {
 	return user, nil
 }
 
+func GetUserByID(id uint) (*models.User, error) {
+	db := database.GetDB()
+
+	user := &models.User{}
+	result := db.Where("id = ?", id).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New(errors.UserDoNotExist)
+	}
+
+	return user, nil
+}
+
 func CheckYear(year int) bool {
 	return year >= 2014 && year <= time.Now().Year()
 }

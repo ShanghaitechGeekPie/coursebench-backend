@@ -28,11 +28,11 @@ func Login(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
+	sess.Set("user_id", user.ID)
 	// Save session
 	if err := sess.Save(); err != nil {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
-	sess.Set("user_id", user.ID)
 	/*err = session.SetSession(user.ID, sess)
 	if err != nil {
 		return
