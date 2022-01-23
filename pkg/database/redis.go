@@ -13,7 +13,7 @@ func GetRedis() *redis.Client {
 	return redisClient
 }
 
-func init() {
+func InitRedis() {
 	host := os.Getenv("REDIS_SERVER_HOST")
 	port := os.Getenv("REDIS_SERVER_PORT")
 	password := os.Getenv("REDIS_SERVER_PASSWORD")

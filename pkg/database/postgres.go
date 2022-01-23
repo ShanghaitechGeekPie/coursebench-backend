@@ -12,7 +12,7 @@ import (
 
 var db *gorm.DB = nil
 
-func init() {
+func InitDB() {
 	var err error
 
 	db, err = newDB(os.Getenv("DB_SERVER_DB_NAME"), logger.Info)

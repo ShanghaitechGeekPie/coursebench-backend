@@ -5,12 +5,13 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/modelRegister"
 	_ "coursebench-backend/pkg/models"
-	"fmt"
+	_ "github.com/joho/godotenv/autoload"
 	"os"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	database.InitDB()
+	database.InitRedis()
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {
