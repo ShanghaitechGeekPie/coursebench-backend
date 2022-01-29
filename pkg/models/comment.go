@@ -6,11 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type Evaluation struct {
+type Comment struct {
 	gorm.Model
 	UserID              uint
 	User                User
-	CourseID            uint
+	CourseGroup         CourseGroup
+	CourseGroupID       uint
 	Semester            int
 	Scores              pq.Int64Array `gorm:"type:bigint[]"`
 	Title               string
@@ -21,5 +22,5 @@ type Evaluation struct {
 }
 
 func init() {
-	modelRegister.Register(&Evaluation{})
+	modelRegister.Register(&Comment{})
 }

@@ -8,11 +8,13 @@ import (
 
 type Course struct {
 	gorm.Model
-	Teachers    []*Teacher `gorm:"many2many:course_teachers;"`
-	Name        string
-	Code        string
-	Scores      pq.Int64Array `gorm:"type:bigint[]"`
-	Evaluations []Evaluation
+	Name         string
+	Institute    string
+	Credit       int
+	Code         string
+	Scores       pq.Int64Array `gorm:"type:bigint[]"`
+	CommentCount int
+	Groups       []CourseGroup
 }
 
 func init() {

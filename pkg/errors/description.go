@@ -28,6 +28,8 @@ var (
 	UserPasswordIncorrect = createDescription("UserPasswordIncorrect", "用户密码错误", SILENT, 400)
 	UserNotLogin          = createDescription("UserNotLogin", "用户未登录", SILENT, 400)
 
+	TeacherDoNotExist = createDescription("TeacherDoNotExist", "未找到教师", SILENT, 400)
+
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
 
 	UnCaughtError        = createDescription("UnCaughtError", "服务器内部错误", FATAL, 500)

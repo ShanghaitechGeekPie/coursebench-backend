@@ -8,4 +8,7 @@ import (
 func TestRoutes(r fiber.Router) {
 	route := r.Group("/test")
 	route.Get("/my_profile", test.MyProfile)
+	test.CourseRoutes(route)
+	test.TeacherRoutes(route)
+	test.CourseGroupRoutes(route)
 }
