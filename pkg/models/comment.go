@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const ScoreLength = 4
+
 type Comment struct {
 	gorm.Model
 	UserID              uint

@@ -1,7 +1,6 @@
 package queries
 
 import (
-	"coursebench-backend/internal/controllers/courses"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -55,24 +54,23 @@ func GetAllCourse() (courses []*models.Course, err error) {
 	return
 }
 
-func AllCourseRequest() (Courses []courses.CourseAllResponse, err error) {
+func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
 	c, err := GetAllCourse()
 	if err != nil {
 		return nil, err
 	}
-	Courses = make([]courses.CourseAllResponse, len(c))
-	/*
-		for i, v := range c {
-			Courses = append(Courses, courses.CourseAllResponse{
-				ID:        v.ID,
-				Name:      v.Name,
-				Institute: v.Institute,
-				Credit:    v.Credit,
-				Code:      v.Code,
-				Group:     v.Group,
-				Scores:    v.Scores,
-				Teachers:  v.Teachers,
-			})
-		}*/
+
+	Courses = make([]models.CourseAllResponse, len(c))
+	for i, v := range c {
+		score := float64(v.Scores[0]) / float64(v.CommentCount)
+		Courses[i] = models.CourseAllResponse{
+			ID:        int(v.ID),
+			Name:      v.Name,
+			Institute: v.Institute,
+			Code:      v.Code,
+			Score:     score,
+		}
+	}
+
 	return
 }
