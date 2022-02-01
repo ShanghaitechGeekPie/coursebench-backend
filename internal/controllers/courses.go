@@ -8,4 +8,5 @@ import (
 func CourseRoutes(r fiber.Router) {
 	route := r.Group("/course")
 	route.Get("/all", courses.All)
+	route.Get("/:id", courses.Info)
 }

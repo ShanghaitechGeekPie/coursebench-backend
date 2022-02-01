@@ -7,8 +7,8 @@ import (
 
 type CourseGroup struct {
 	gorm.Model
-	Code         string
-	Course       Course
+	Code string
+	//Course       Course
 	CourseID     uint
 	Scores       pq.Int64Array `gorm:"type:bigint[]"`
 	CommentCount int

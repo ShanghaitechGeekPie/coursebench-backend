@@ -5,6 +5,7 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 func AddCourse(name string, institute string, credit int, code string) (course *models.Course, err error) {
@@ -39,7 +40,18 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 		}
 	}
 	courseGroup = &models.CourseGroup{CourseID: uint(courseID), Code: code, Teachers: teachersT, Scores: pq.Int64Array{0, 0, 0, 0}, CommentCount: 0}
-	result := db.Create(courseGroup)
+	course := &models.Course{}
+	err = db.Where("id = ?", courseID).First(course).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.CourseNotExist)
+	}
+	course.Groups = append(course.Groups, *courseGroup)
+	result := db.Save(course)
+
+	//result := db.Create(courseGroup)
 	if result.Error != nil {
 		return nil, errors.Wrap(result.Error, errors.DatabaseError)
 	}
@@ -62,7 +74,10 @@ func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
 
 	Courses = make([]models.CourseAllResponse, len(c))
 	for i, v := range c {
-		score := float64(v.Scores[0]) / float64(v.CommentCount)
+		score := 0.0
+		if v.CommentCount != 0 {
+			score = float64(v.Scores[0]) / float64(v.CommentCount)
+		}
 		Courses[i] = models.CourseAllResponse{
 			ID:        int(v.ID),
 			Name:      v.Name,

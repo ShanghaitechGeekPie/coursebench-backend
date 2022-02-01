@@ -16,7 +16,7 @@ func GetTeacher(id uint) (teacher *models.Teacher, err error) {
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.New(errors.TeacherDoNotExist)
+		return nil, errors.New(errors.TeacherNotExist)
 	}
 
 	return teacher, nil

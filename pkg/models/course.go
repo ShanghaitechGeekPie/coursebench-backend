@@ -14,7 +14,7 @@ type Course struct {
 	Code         string
 	Scores       pq.Int64Array `gorm:"type:bigint[]"`
 	CommentCount int
-	Groups       []CourseGroup
+	Groups       []CourseGroup `gorm:"foreignKey:CourseID"`
 }
 
 func init() {

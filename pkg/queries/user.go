@@ -100,7 +100,7 @@ func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, r
 	user.Grade = grade
 	user.NickName = nickname
 	user.RealName = realname
-	err = db.Save(user).Error
+	err = db.Select("year", "grade", "nick_name", "real_name").Save(user).Error
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
@@ -127,7 +127,7 @@ func UpdatePassword(id uint, oldPassword string, newPassword string) (err error)
 		return errors.Wrap(err, errors.InternalServerError)
 	}
 	user.Password = string(hash)
-	err = db.Save(user).Error
+	err = db.Select("password").Save(user).Error
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}

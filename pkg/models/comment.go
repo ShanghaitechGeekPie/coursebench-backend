@@ -18,7 +18,6 @@ type Comment struct {
 	Scores              pq.Int64Array `gorm:"type:bigint[]"`
 	Title               string
 	Comment             string
-	StudentScoreNumber  int
 	StudentScoreRanking int
 	IsAnonymous         bool
 }
