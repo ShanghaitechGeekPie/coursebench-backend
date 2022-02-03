@@ -40,12 +40,12 @@ func Info(c *fiber.Ctx) (err error) {
 	id := uint(id_i)
 	db := database.GetDB()
 	course := &models.Course{}
-	err = db.Preload("CourseGroup").Where("id = ?", id).First(course).Error
+	err = db.Preload("Groups").Preload("Groups.Teachers").Where("id = ?", id).First(course).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.Wrap(err, errors.CourseNotExist)
+		return errors.Wrap(err, errors.CourseNotExists)
 	}
 	response := &InfoResponse{Name: course.Name, Code: course.Code, ID: int(course.ID), Institute: course.Institute, Credit: course.Credit, CommentNum: course.CommentCount}
 	response.Score = make([]float64, course.CommentCount)

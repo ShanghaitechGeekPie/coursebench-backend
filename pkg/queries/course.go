@@ -46,7 +46,7 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrap(err, errors.CourseNotExist)
+		return nil, errors.Wrap(err, errors.CourseNotExists)
 	}
 	course.Groups = append(course.Groups, *courseGroup)
 	result := db.Save(course)

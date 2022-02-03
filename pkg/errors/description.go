@@ -28,9 +28,9 @@ var (
 	UserPasswordIncorrect = createDescription("UserPasswordIncorrect", "用户密码错误", SILENT, 400)
 	UserNotLogin          = createDescription("UserNotLogin", "用户未登录", SILENT, 400)
 
-	TeacherNotExist = createDescription("TeacherNotExist", "未找到教师", SILENT, 400)
+	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 
-	CourseNotExist = createDescription("CourseNotExist", "未找到课程", SILENT, 400)
+	CourseNotExists = createDescription("CourseNotExists", "未找到课程", SILENT, 400)
 
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
 

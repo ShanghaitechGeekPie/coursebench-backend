@@ -8,9 +8,10 @@ import (
 type Teacher struct {
 	gorm.Model
 	Name         string
+	Institute    string
 	Job          string
 	Introduction string
-	Course       []*CourseGroup `gorm:"many2many:course_teachers;"`
+	Courses      []*CourseGroup `gorm:"many2many:course_teachers;"`
 }
 
 func init() {
