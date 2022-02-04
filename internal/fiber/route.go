@@ -13,5 +13,6 @@ func Routes(app *fiber.App) {
 	controllers.TestRoutes(route)
 	controllers.CourseRoutes(route)
 	controllers.CommentRoutes(route)
+	controllers.TeacherRoute(route)
 
 }

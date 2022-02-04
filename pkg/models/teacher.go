@@ -11,7 +11,8 @@ type Teacher struct {
 	Institute    string
 	Job          string
 	Introduction string
-	Courses      []*CourseGroup `gorm:"many2many:course_teachers;"`
+	CourseGroups []*CourseGroup `gorm:"many2many:coursegroup_teachers;"`
+	Courses      []*Course      `gorm:"many2many:course_teachers;"`
 }
 
 func init() {

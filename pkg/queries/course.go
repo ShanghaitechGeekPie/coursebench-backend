@@ -41,7 +41,11 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 	}
 	courseGroup = &models.CourseGroup{CourseID: uint(courseID), Code: code, Teachers: teachersT, Scores: pq.Int64Array{0, 0, 0, 0}, CommentCount: 0}
 	course := &models.Course{}
-	err = db.Where("id = ?", courseID).First(course).Error
+	result := db.Save(courseGroup)
+	if result.Error != nil {
+		return nil, errors.Wrap(result.Error, errors.DatabaseError)
+	}
+	err = db.Preload("Teachers").Preload("Groups").Where("id = ?", courseID).First(course).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
@@ -49,9 +53,26 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 		return nil, errors.Wrap(err, errors.CourseNotExists)
 	}
 	course.Groups = append(course.Groups, *courseGroup)
-	result := db.Save(course)
 
-	//result := db.Create(courseGroup)
+	// Update course-teacher relation
+	// Should check if teacher is already in course
+	// insert into course.teachers
+
+	for _, teacher := range teachersT {
+		flag := true
+		for _, t := range course.Teachers {
+			if t.ID == teacher.ID {
+				flag = false
+				break
+			}
+		}
+		if flag {
+			course.Teachers = append(course.Teachers, teacher)
+		}
+	}
+
+	result = db.Select("Teachers", "Groups").Save(course)
+
 	if result.Error != nil {
 		return nil, errors.Wrap(result.Error, errors.DatabaseError)
 	}

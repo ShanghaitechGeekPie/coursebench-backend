@@ -15,6 +15,7 @@ type Course struct {
 	Scores       pq.Int64Array `gorm:"type:bigint[]"`
 	CommentCount int
 	Groups       []CourseGroup `gorm:"foreignKey:CourseID"`
+	Teachers     []*Teacher    `gorm:"many2many:course_teachers"`
 }
 
 func init() {

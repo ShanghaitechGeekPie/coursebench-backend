@@ -12,6 +12,6 @@ type CourseGroup struct {
 	CourseID     uint
 	Scores       pq.Int64Array `gorm:"type:bigint[]"`
 	CommentCount int
-	Teachers     []*Teacher `gorm:"many2many:course_teachers"`
+	Teachers     []*Teacher `gorm:"many2many:coursegroup_teachers"`
 	Comment      []Comment
 }

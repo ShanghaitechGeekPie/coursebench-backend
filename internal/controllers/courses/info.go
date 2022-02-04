@@ -40,7 +40,7 @@ func Info(c *fiber.Ctx) (err error) {
 	id := uint(id_i)
 	db := database.GetDB()
 	course := &models.Course{}
-	err = db.Preload("Groups").Preload("Groups.Teachers").Where("id = ?", id).First(course).Error
+	err = db.Preload("Groups").Preload("Groups.Teachers").Where("id = ?", id).Take(course).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
