@@ -30,7 +30,10 @@ var (
 
 	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 
-	CourseNotExists = createDescription("CourseNotExists", "未找到课程", SILENT, 400)
+	CourseNotExists      = createDescription("CourseNotExists", "未找到课程", SILENT, 400)
+	CourseGroupNotExists = createDescription("CourseGroupNotExists", "未找到课程授课组", SILENT, 400)
+
+	CommentAlreadyExists = createDescription("CommentAlreadyExists", "评论已存在", SILENT, 400)
 
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
 

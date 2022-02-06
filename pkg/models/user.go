@@ -15,7 +15,7 @@ const (
 
 type User struct {
 	gorm.Model
-	Email    string
+	Email    string `gorm:"index"`
 	Password string
 	NickName string
 	RealName string

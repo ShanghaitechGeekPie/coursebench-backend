@@ -10,16 +10,18 @@ const ScoreLength = 4
 
 type Comment struct {
 	gorm.Model
-	UserID              uint
+	UserID              uint `gorm:"index"`
 	User                User
 	CourseGroup         CourseGroup
-	CourseGroupID       uint
+	CourseGroupID       uint `gorm:"index"`
 	Semester            int
 	Scores              pq.Int64Array `gorm:"type:bigint[]"`
 	Title               string
-	Comment             string
+	Content             string
 	StudentScoreRanking int
 	IsAnonymous         bool
+	CreateTime          int
+	UpdateTime          int
 }
 
 func init() {
