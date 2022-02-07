@@ -8,6 +8,6 @@ import (
 func CommentRoutes(r fiber.Router) {
 	route := r.Group("/comment")
 	route.Post("/post", comments.Post)
-	route.Post("/:id/update", comments.Update)
-	route.Post("/:id/delete", comments.Delete)
+	route.Post("/update", comments.Update)
+	route.Post("/delete", comments.Delete)
 }

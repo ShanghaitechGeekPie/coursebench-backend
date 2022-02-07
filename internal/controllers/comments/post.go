@@ -119,7 +119,7 @@ func Post(c *fiber.Ctx) (err error) {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  map[string]interface{}{"comment_id": comment},
+		Data:  map[string]interface{}{"comment_id": comment.ID},
 		Error: false,
 	})
 }

@@ -34,8 +34,11 @@ var (
 	CourseGroupNotExists = createDescription("CourseGroupNotExists", "未找到课程授课组", SILENT, 400)
 
 	CommentAlreadyExists = createDescription("CommentAlreadyExists", "评论已存在", SILENT, 400)
+	CommentNotExists     = createDescription("CommentNotExists", "评论不存在", SILENT, 400)
 
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
+
+	PermissionDenied = createDescription("PermissionDenied", "您没有权限执行此操作", SILENT, 403)
 
 	UnCaughtError        = createDescription("UnCaughtError", "服务器内部错误", FATAL, 500)
 	FailedToGetRedisLock = createDescription("FailedToGetRedisLock", "服务器繁忙", SILENT, 500)
