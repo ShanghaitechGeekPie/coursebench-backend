@@ -40,41 +40,47 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 		}
 	}
 	courseGroup = &models.CourseGroup{CourseID: uint(courseID), Code: code, Teachers: teachersT, Scores: pq.Int64Array{0, 0, 0, 0}, CommentCount: 0}
-	course := &models.Course{}
-	result := db.Save(courseGroup)
-	if result.Error != nil {
-		return nil, errors.Wrap(result.Error, errors.DatabaseError)
-	}
-	err = db.Preload("Teachers").Preload("Groups").Where("id = ?", courseID).First(course).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrap(err, errors.DatabaseError)
-	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.Wrap(err, errors.CourseNotExists)
-	}
-	course.Groups = append(course.Groups, *courseGroup)
+	err = db.Transaction(func(tx *gorm.DB) error {
+		course := &models.Course{}
+		result := tx.Save(courseGroup)
+		if result.Error != nil {
+			return errors.Wrap(result.Error, errors.DatabaseError)
+		}
+		err = tx.Preload("Teachers").Preload("Groups").Where("id = ?", courseID).First(course).Error
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, errors.CourseNotExists)
+		}
+		course.Groups = append(course.Groups, *courseGroup)
 
-	// Update course-teacher relation
-	// Should check if teacher is already in course
-	// insert into course.teachers
+		// Update course-teacher relation
+		// Should check if teacher is already in course
+		// insert into course.teachers
 
-	for _, teacher := range teachersT {
-		flag := true
-		for _, t := range course.Teachers {
-			if t.ID == teacher.ID {
-				flag = false
-				break
+		for _, teacher := range teachersT {
+			flag := true
+			for _, t := range course.Teachers {
+				if t.ID == teacher.ID {
+					flag = false
+					break
+				}
+			}
+			if flag {
+				course.Teachers = append(course.Teachers, teacher)
 			}
 		}
-		if flag {
-			course.Teachers = append(course.Teachers, teacher)
+
+		result = tx.Select("Teachers", "Groups").Save(course)
+
+		if result.Error != nil {
+			return errors.Wrap(result.Error, errors.DatabaseError)
 		}
-	}
-
-	result = db.Select("Teachers", "Groups").Save(course)
-
-	if result.Error != nil {
-		return nil, errors.Wrap(result.Error, errors.DatabaseError)
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 	return
 }
