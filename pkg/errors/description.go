@@ -42,4 +42,6 @@ var (
 
 	UnCaughtError        = createDescription("UnCaughtError", "服务器内部错误", FATAL, 500)
 	FailedToGetRedisLock = createDescription("FailedToGetRedisLock", "服务器繁忙", SILENT, 500)
+
+	SMTPError = createDescription("SMTPError", "邮件发送失败", FATAL, 500)
 )
