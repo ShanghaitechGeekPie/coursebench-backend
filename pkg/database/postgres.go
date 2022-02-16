@@ -2,20 +2,49 @@ package database
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"os"
-	"strconv"
+	"log"
 	"time"
 )
+
+type PostgresConfig struct {
+	Username              string        `mapstructure:"username"`
+	Password              string        `mapstructure:"password"`
+	Host                  string        `mapstructure:"host"`
+	Port                  int           `mapstructure:"port"`
+	Database              string        `mapstructure:"database"`
+	SSL                   string        `mapstructure:"ssl"`
+	Timezone              string        `mapstructure:"timezone"`
+	MaxOpenConnections    int           `mapstructure:"max_open_connections"`
+	MaxIdleConnections    int           `mapstructure:"max_idle_connections"`
+	ConnectionMaxLifetime time.Duration `mapstructure:"connection_max_lifetime"`
+}
+
+var postgresConfig PostgresConfig
 
 var db *gorm.DB = nil
 
 func InitDB() {
-	var err error
+	config := viper.Sub("postgres")
+	if config == nil {
+		log.Println("Postgres config not found")
+		return
+	}
+	config.SetDefault("ssl", "disable")
+	config.SetDefault("timezone", "Asia/Shanghai")
+	config.SetDefault("max_open_connections", 16)
+	config.SetDefault("max_idle_connections", 4)
+	config.SetDefault("connection_max_lifetime", "4m")
 
-	db, err = newDB(os.Getenv("DB_SERVER_DB_NAME"), logger.Info)
+	err := config.Unmarshal(&postgresConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err = newDB(postgresConfig.Database, logger.Info)
 	if err != nil {
 		panic(err)
 	}
@@ -26,7 +55,7 @@ func GetDB() *gorm.DB {
 }
 
 func newDB(dbname string, logLevel logger.LogLevel) (gormDB *gorm.DB, err error) {
-	switch dbType := os.Getenv("DB_SERVER_TYPE"); dbType {
+	switch dbType := "postgresql"; dbType {
 	case "postgresql":
 		fmt.Println("使用Postgresql")
 		gormDB, err = newPostgreSQLConnection(dbname, logLevel)
@@ -41,18 +70,18 @@ func newDB(dbname string, logLevel logger.LogLevel) (gormDB *gorm.DB, err error)
 
 func newPostgreSQLConnection(dbname string, logLevel logger.LogLevel) (*gorm.DB, error) {
 	// Define database connection settings.
-	maxConn, _ := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
-	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
-	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
+	maxConn := postgresConfig.MaxOpenConnections
+	maxIdleConn := postgresConfig.MaxIdleConnections
+	maxLifetimeConn := postgresConfig.ConnectionMaxLifetime
 
-	host := os.Getenv("DB_SERVER_HOST")
-	port := os.Getenv("DB_SERVER_PORT")
-	user := os.Getenv("DB_SERVER_USER")
-	password := os.Getenv("DB_SERVER_PASSWORD")
-	ssl := os.Getenv("DB_SERVER_SSL")
-	timezone := os.Getenv("DB_SERVER_TIMEZONE")
+	host := postgresConfig.Host
+	port := postgresConfig.Port
+	user := postgresConfig.Username
+	password := postgresConfig.Password
+	ssl := postgresConfig.SSL
+	timezone := postgresConfig.Timezone
 	// Define database connection for PostgreSQL.
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s", host, user, password, dbname, port, ssl, timezone)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s", host, user, password, dbname, port, ssl, timezone)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 	})

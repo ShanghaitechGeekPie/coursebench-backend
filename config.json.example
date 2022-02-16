@@ -1,0 +1,20 @@
+{
+  "global": {
+    "in_development":true
+  },
+  "postgres": {
+    "host": "127.0.0.1",
+    "port": 5432,
+    "username": "coursebench",
+    "password": "123456",
+    "database": "coursebench"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  },
+  "fiber": {
+    "listen": "127.0.0.1:10001",
+    "reverse_proxy_depth": 1
+  }
+}

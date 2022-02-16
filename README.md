@@ -17,10 +17,10 @@ go build .
 ## Configure
 
 ```shell
-cp .env.example .env
+cp config.json.example config.json
 ```
 
-Edit .env file as you like.
+Edit ``config.json`` as you like.
 
 Edit files in `build` directory as you like.
 
