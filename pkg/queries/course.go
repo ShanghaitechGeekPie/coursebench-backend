@@ -3,6 +3,7 @@ package queries
 import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -84,19 +85,19 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 	}
 	return
 }
-func GetAllCourse() (courses []*models.Course, err error) {
+func GetAllCourse() (courses []*models.Course, event *events.AttributedEvent) {
 	db := database.GetDB()
 	result := db.Find(&courses)
 	if result.Error != nil {
-		return nil, errors.Wrap(result.Error, errors.DatabaseError)
+		return nil, events.Wrap(result.Error, events.DatabaseError)
 	}
 	return
 }
 
-func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
-	c, err := GetAllCourse()
-	if err != nil {
-		return nil, err
+func AllCourseRequest() (Courses []models.CourseAllResponse, event *events.AttributedEvent) {
+	c, event := GetAllCourse()
+	if event != nil && event.IsError() {
+		return nil, event
 	}
 
 	Courses = make([]models.CourseAllResponse, len(c))

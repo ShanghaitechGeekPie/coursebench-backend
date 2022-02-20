@@ -1,19 +1,20 @@
 package courses
 
 import (
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
 )
 
-func All(c *fiber.Ctx) error {
+func All(c *fiber.Ctx) *events.AttributedEvent {
 	var response []models.CourseAllResponse
-	response, err := queries.AllCourseRequest()
-	if err != nil {
-		return err
+	response, event := queries.AllCourseRequest()
+	if event != nil && event.IsError() {
+		return event
 	}
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+	return events.Wrap(c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,
-	})
+	}), events.InternalServerError)
 }

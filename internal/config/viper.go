@@ -6,7 +6,8 @@ import (
 )
 
 type GlobalConfig struct {
-	InDevelopment bool `mapstructure:"in_development"`
+	InDevelopment bool   `mapstructure:"in_development"`
+	ServiceName   string `mapstructure:"service_name"`
 }
 
 var GlobalConf GlobalConfig

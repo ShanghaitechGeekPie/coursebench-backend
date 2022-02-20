@@ -1,7 +1,7 @@
 package session
 
 import (
-	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"time"
@@ -17,15 +17,15 @@ func GetStore() *session.Store {
 	return store
 }
 
-func GetUserID(ctx *fiber.Ctx) (uint, error) {
+func GetUserID(ctx *fiber.Ctx) (uint, *events.AttributedEvent) {
 	sess, err := store.Get(ctx)
 	if err != nil {
-		return 0, errors.Wrap(err, errors.InternalServerError)
+		return 0, events.Wrap(err, events.InternalServerError)
 	}
 	t := sess.Get("user_id")
 	id, ok := t.(uint)
 	if !ok {
-		return 0, errors.New(errors.UserNotLogin)
+		return 0, events.New(events.UserNotLogin)
 	}
 	return id, nil
 }

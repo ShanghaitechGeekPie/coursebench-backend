@@ -1,10 +1,10 @@
 package fiber
 
 import (
-	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"github.com/gofiber/fiber/v2"
-	"log"
+	"go.uber.org/zap"
 )
 
 var maxByteSize int
@@ -22,17 +22,23 @@ func errorHandler(c *fiber.Ctx, err error) error {
 
 	// Set Content-Type: text/plain; charset=utf-8
 	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+	var event *events.AttributedEvent
 
 	if err == fiber.ErrMethodNotAllowed {
-		err = errors.Wrap(err, errors.InvalidRequest)
+		event = events.Wrap(err, events.InvalidRequest)
 	}
 
-	userError, ok := err.(errors.UserError)
+	attributedError, ok := err.(*events.AttributedError)
 
 	if !ok {
-		userError = errors.Wrap(err, errors.UnCaughtError).(errors.UserError)
+		event = events.Wrap(err, events.UnCaughtError)
+	} else {
+		event = attributedError.Event
 	}
-	log.Printf("%s, %s, %s, %s\n", userError.Error(), userError.Name(), userError.Cause().Error(), userError.Stacktrace())
+
+	if event == nil {
+		event = events.New(events.LogicError).Add(zap.String("message", "event is nil, which should be filtered in context middleware"))
+	}
 
 	// TODO: Log error
 	/*
@@ -42,10 +48,10 @@ func errorHandler(c *fiber.Ctx, err error) error {
 		}*/
 
 	// Return status code with error message
-	return c.Status(userError.StatusCode()).JSON(models.ErrorResponse{
-		Timestamp: userError.Time(),
-		Errno:     userError.Name(),
-		Message:   userError.Error(),
+	return c.Status(event.HttpStatus()).JSON(models.ErrorResponse{
+		Timestamp: event.Time(),
+		Errno:     event.Name(),
+		Message:   event.Message(),
 		Error:     true,
 	})
 }

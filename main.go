@@ -6,6 +6,7 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/modelRegister"
 	_ "coursebench-backend/pkg/models"
+	_ "coursebench-backend/pkg/tracing"
 	_ "github.com/joho/godotenv/autoload"
 )
 

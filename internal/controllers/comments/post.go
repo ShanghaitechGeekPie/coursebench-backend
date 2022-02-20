@@ -3,10 +3,11 @@ package comments
 import (
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/database"
-	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"time"
 )
@@ -21,51 +22,51 @@ type PostRequest struct {
 	StudentScoreRanking int     `json:"student_score_ranking"`
 }
 
-func Post(c *fiber.Ctx) (err error) {
+func Post(c *fiber.Ctx) *events.AttributedEvent {
 	postTime := int(time.Now().Unix())
 
 	c.Accepts("application/json")
 	var request PostRequest
-	if err = c.BodyParser(&request); err != nil {
-		return errors.Wrap(err, errors.InvalidArgument)
+	if err := c.BodyParser(&request); err != nil {
+		return events.Wrap(err, events.InvalidArgument)
 	}
 
-	uid, err := session.GetUserID(c)
-	if err != nil {
-		return err
+	uid, event := session.GetUserID(c)
+	if event != nil {
+		return event
 	}
 
 	if !queries.CheckCommentTitle(request.Title) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentContent(request.Content) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckSemester(request.Semester) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentScore(request.Scores) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentScoreRanking(request.StudentScoreRanking) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 
 	db := database.GetDB()
 
 	// Check if comment already exists
-	err = db.Where("user_id=? AND course_group_id=?", uid, request.Group).Take(&models.Comment{}).Error
+	err := db.Where("user_id=? AND course_group_id=?", uid, request.Group).Take(&models.Comment{}).Error
 	if err == nil {
-		return errors.New(errors.CommentAlreadyExists)
+		return events.New(events.CommentAlreadyExists)
 	} else if err != gorm.ErrRecordNotFound {
-		return errors.Wrap(err, errors.DatabaseError)
+		return events.Wrap(err, events.DatabaseError)
 	}
 	err = db.Where("id=?", request.Group).Take(&models.CourseGroup{}).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.Wrap(err, errors.InvalidArgument)
+			return events.Wrap(err, events.InvalidArgument)
 		} else {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError)
 		}
 	}
 	comment := &models.Comment{
@@ -85,16 +86,16 @@ func Post(c *fiber.Ctx) (err error) {
 	err = db.Transaction(func(tx *gorm.DB) error {
 		err = tx.Create(comment).Error
 		if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError).ToError()
 
 		}
 
 		group := &models.CourseGroup{}
 		err = tx.Preload("Course").Where("id=?", request.Group).Take(group).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(errors.CourseGroupNotExists)
+			return events.New(events.CourseGroupNotExists).ToError()
 		} else if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError).ToError()
 		}
 		group.CommentCount++
 		for i := 0; i < models.ScoreLength; i++ {
@@ -102,7 +103,7 @@ func Post(c *fiber.Ctx) (err error) {
 		}
 		err = tx.Select("Scores", "CommentCount").Save(group).Error
 		if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError).ToError()
 		}
 		group.Course.CommentCount++
 		for i := 0; i < models.ScoreLength; i++ {
@@ -110,16 +111,16 @@ func Post(c *fiber.Ctx) (err error) {
 		}
 		err = tx.Select("Scores", "CommentCount").Save(group.Course).Error
 		if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError).ToError()
 		}
 		return nil
 	})
 	if err != nil {
-		return err
+		return events.Wrap(err, events.DatabaseError)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+	return events.Wrap(c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  map[string]interface{}{"comment_id": comment.ID},
 		Error: false,
-	})
+	}), events.InternalServerError)
 }

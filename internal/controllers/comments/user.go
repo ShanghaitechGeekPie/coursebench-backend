@@ -3,7 +3,7 @@ package comments
 import (
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/database"
-	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -94,17 +94,17 @@ func GenerateResponse(comments []models.Comment, uid uint) (response []CommentRe
 	return
 }
 
-func UserComment(c *fiber.Ctx) (err error) {
+func UserComment(c *fiber.Ctx) *events.AttributedEvent {
 	id_s := c.Params("id", "GG")
 	id_i, err := strconv.Atoi(id_s)
 	if err != nil {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	id := uint(id_i)
 
-	uid, err := session.GetUserID(c)
-	if err != nil {
-		uid = 0
+	uid, event := session.GetUserID(c)
+	if event != nil {
+		return event
 	}
 
 	db := database.GetDB()
@@ -112,12 +112,12 @@ func UserComment(c *fiber.Ctx) (err error) {
 	err = db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").
 		Where("user_id = ?", id).Find(&comments).Error
 	if err != nil {
-		return errors.Wrap(err, errors.DatabaseError)
+		return events.Wrap(err, events.DatabaseError)
 	}
 	var response []CommentResponse
 	response = GenerateResponse(comments, uid)
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+	return events.Wrap(c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,
-	})
+	}), events.InternalServerError)
 }

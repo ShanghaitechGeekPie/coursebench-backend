@@ -1,6 +1,7 @@
 {
   "global": {
-    "in_development":true
+    "in_development":true,
+    "service_name":"CourseBench Backend"
   },
   "postgres": {
     "host": "127.0.0.1",

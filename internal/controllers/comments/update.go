@@ -3,9 +3,10 @@ package comments
 import (
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/database"
-	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/events"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+	"errors"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 	"time"
@@ -21,50 +22,50 @@ type UpdateRequest struct {
 	StudentScoreRanking int     `json:"student_score_ranking"`
 }
 
-func Update(c *fiber.Ctx) (err error) {
+func Update(c *fiber.Ctx) *events.AttributedEvent {
 	updateTime := int(time.Now().Unix())
 
 	c.Accepts("application/json")
 	var request UpdateRequest
-	if err = c.BodyParser(&request); err != nil {
-		return errors.Wrap(err, errors.InvalidArgument)
+	if err := c.BodyParser(&request); err != nil {
+		return events.Wrap(err, events.InvalidArgument)
 	}
 
-	uid, err := session.GetUserID(c)
-	if err != nil {
-		return err
+	uid, event := session.GetUserID(c)
+	if event != nil {
+		return event
 	}
 
 	if !queries.CheckCommentTitle(request.Title) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentContent(request.Content) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckSemester(request.Semester) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentScore(request.Scores) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 	if !queries.CheckCommentScoreRanking(request.StudentScoreRanking) {
-		return errors.New(errors.InvalidArgument)
+		return events.New(events.InvalidArgument)
 	}
 
 	db := database.GetDB()
 	comment := &models.Comment{}
-	err = db.Preload("CourseGroup").Preload("CourseGroup.Course").Where("id = ?", request.ID).Take(comment).Error
+	err := db.Preload("CourseGroup").Preload("CourseGroup.Course").Where("id = ?", request.ID).Take(comment).Error
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(errors.CommentNotExists)
+			return events.New(events.CommentNotExists)
 		} else {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError)
 		}
 	}
 
 	if uid != comment.UserID {
-		return errors.New(errors.PermissionDenied)
+		return events.New(events.PermissionDenied)
 	}
 
 	err = db.Transaction(func(tx *gorm.DB) error {
@@ -88,14 +89,17 @@ func Update(c *fiber.Ctx) (err error) {
 			"CourseGroup.Course", "CourseGroup.Course.ID", "CourseGroup.Course.Scores").Updates(comment).Error
 		//err = tx.Session(&gorm.Session{FullSaveAssociations: true}).Updates(comment).Error
 		if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+			return events.Wrap(err, events.DatabaseError).ToError()
 		}
 
 		return nil
 	})
+	if err != nil {
+		return events.Wrap(err, events.DatabaseError)
+	}
 
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+	return events.Wrap(c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  nil,
 		Error: false,
-	})
+	}), events.InternalServerError)
 }
