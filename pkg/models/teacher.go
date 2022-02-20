@@ -7,6 +7,7 @@ import (
 
 type Teacher struct {
 	gorm.Model
+	EamsID       int
 	Name         string
 	Institute    string
 	Job          string

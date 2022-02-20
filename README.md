@@ -11,7 +11,7 @@ course-bench 的后端服务
 ```shell
 git clone git@github.com:ShanghaitechGeekPie/coursebench-backend.git
 cd coursebench-backend
-go build .
+go build main/main.go
 ```
 
 ## Configure
@@ -30,5 +30,5 @@ Edit files in `build` directory as you like.
 cd build
 sudo docker-compose up -d
 cd ..
-./coursebench-backend
+./main
 ```
