@@ -1,6 +1,7 @@
 {
   "global": {
-    "in_development":true
+    "in_development":true,
+    "service_name":"CourseBench Backend"
   },
   "postgres": {
     "host": "127.0.0.1",
@@ -8,6 +9,14 @@
     "username": "coursebench",
     "password": "123456",
     "database": "coursebench"
+  },
+  "smtp": {
+    "address": "geekpie@geekpie.club",
+    "name": "GeekPie, ShanghaiTech University",
+    "host": "smtp.gmail.com",
+    "port": 465,
+    "username": "Geekpie",
+    "password": "123456"
   },
   "redis": {
     "host": "127.0.0.1",
