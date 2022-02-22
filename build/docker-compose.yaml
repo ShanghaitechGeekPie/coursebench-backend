@@ -2,9 +2,11 @@ version: '3'
 services:
   postgres:
     build: ./postgres
+    restart: always
     ports:
       - "5432:5432"
   redis:
     build: ./redis
+    restart: always
     ports:
       - "6379:6379"
