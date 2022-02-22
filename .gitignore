@@ -1,3 +1,4 @@
 .idea
-coursebench-backend
+/bin
 config.json
+data_import

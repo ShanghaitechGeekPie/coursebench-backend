@@ -22,13 +22,14 @@ func GetTeacher(id uint) (teacher *models.Teacher, err error) {
 	return teacher, nil
 }
 
-func AddTeacher(name string, job string, introduction string) (teacher *models.Teacher, err error) {
+func AddTeacher(name string, job string, introduction string, EamsID int) (teacher *models.Teacher, err error) {
 	db := database.GetDB()
 
 	teacher = &models.Teacher{
 		Name:         name,
 		Job:          job,
 		Introduction: introduction,
+		EamsID:       EamsID,
 	}
 	result := db.Create(teacher)
 	if err := result.Error; err != nil {

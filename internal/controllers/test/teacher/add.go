@@ -11,6 +11,7 @@ type AddRequest struct {
 	Name         string `json:"name"`
 	Job          string `json:"job"`
 	Introduction string `json:"introduction"`
+	EamsID       int    `json:"eams_id"`
 }
 
 func Add(c *fiber.Ctx) (err error) {
@@ -20,7 +21,7 @@ func Add(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 
-	teacher, err := queries.AddTeacher(request.Name, request.Job, request.Introduction)
+	teacher, err := queries.AddTeacher(request.Name, request.Job, request.Introduction, request.EamsID)
 	if err != nil {
 		return err
 	}
