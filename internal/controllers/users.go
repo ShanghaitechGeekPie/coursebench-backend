@@ -8,6 +8,7 @@ import (
 func UserRoutes(r fiber.Router) {
 	route := r.Group("/user")
 	route.Post("/register", users.Register)
+	route.Post("/register_active", users.RegisterActive)
 	route.Post("/login", users.Login)
 	route.Post("/logout", users.Logout)
 	route.Get("/profile/:id", users.Profile)

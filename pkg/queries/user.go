@@ -3,6 +3,7 @@ package queries
 import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
 	"github.com/badoux/checkmail"
 	"golang.org/x/crypto/bcrypt"
@@ -43,10 +44,39 @@ func Register(u *models.User) error {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
 	u.Password = string(hash)
+	u.IsActive = false
 
 	if err := db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
+
+	err = mail.PostMail(u)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RegisterActive(id uint, code string) (err error) {
+	db := database.GetDB()
+	user := &models.User{}
+	// 检查邮箱是否已存在
+	result := db.Where("id = ?", id).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return errors.New(errors.UserNotExists)
+	}
+	ok, err := mail.CheckCode(user, code)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New(errors.MailCodeInvalid)
+	}
+	user.IsActive = true
+	db.Select("is_active").Save(user)
 	return nil
 }
 
@@ -68,11 +98,15 @@ func Login(email, password string) (*models.User, error) {
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.New(errors.UserDoNotExist)
+		return nil, errors.New(errors.UserNotExists)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, errors.Wrap(err, errors.UserPasswordIncorrect)
+	}
+
+	if !user.IsActive {
+		return nil, errors.New(errors.UserNotActive)
 	}
 
 	return user, nil
@@ -143,7 +177,7 @@ func GetUserByID(id uint) (*models.User, error) {
 		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
 	if result.RowsAffected == 0 {
-		return nil, errors.New(errors.UserDoNotExist)
+		return nil, errors.New(errors.UserNotExists)
 	}
 
 	return user, nil

@@ -21,6 +21,7 @@ type User struct {
 	RealName string
 	Year     int
 	Grade    GradeType
+	IsActive bool
 }
 
 func init() {
