@@ -11,8 +11,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -73,6 +75,39 @@ func main() {
 		err = json.Unmarshal([]byte(t), &teacherNames)
 		if err != nil {
 			panic(err)
+		}
+		var data []struct {
+			CourseGroupID int
+			ArrayAgg      pq.StringArray `gorm:"type:string[]"`
+		}
+		db.Raw(`select  course_group_id, array_agg(name) from course_groups
+    inner join coursegroup_teachers on course_groups.id = coursegroup_teachers.course_group_id
+    inner join teachers on coursegroup_teachers.teacher_id = teachers.id
+    where course_groups.course_id=? group by course_group_id;`, course.ID).Scan(&data)
+		names := make([]string, len(teacherNames))
+		copy(names, teacherNames)
+		sort.Strings(names)
+		flag := false
+		for _, c := range data {
+			sort.Strings(c.ArrayAgg)
+			flag2 := true
+			if len(c.ArrayAgg) == len(names) {
+				for i, name := range c.ArrayAgg {
+					if name != names[i] {
+						flag2 = false
+						break
+					}
+				}
+			} else {
+				flag2 = false
+			}
+			if flag2 {
+				flag = true
+				break
+			}
+		}
+		if flag {
+			continue
 		}
 		for i, name := range teacherNames {
 			teacher := &models.Teacher{}

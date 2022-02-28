@@ -9,7 +9,7 @@ type CourseGroup struct {
 	gorm.Model
 	Code         string
 	Course       Course
-	CourseID     uint
+	CourseID     uint          `gorm:"index"`
 	Scores       pq.Int64Array `gorm:"type:bigint[]"`
 	CommentCount int
 	Teachers     []*Teacher `gorm:"many2many:coursegroup_teachers"`
