@@ -1,0 +1,13 @@
+stages:
+  - build
+
+kaniko-build:
+  stage: build
+  image: gcr.io/kaniko-project/executor:debug
+  variables:
+    CI_REGISTRY_USER_WITHDOLLAR: $CI_REGISTRY_USER
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER_WITHDOLLAR\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context . --dockerfile ./Dockerfile --destination $CI_REGISTRY/$CI_PROJECT/coursebench-backend:latest
+
