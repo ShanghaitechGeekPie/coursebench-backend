@@ -108,11 +108,13 @@ func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
 			}
 		}
 		Courses[i] = models.CourseAllResponse{
-			ID:        int(v.ID),
-			Name:      v.Name,
-			Institute: v.Institute,
-			Code:      v.Code,
-			Score:     score,
+			ID:         int(v.ID),
+			Name:       v.Name,
+			Institute:  v.Institute,
+			Code:       v.Code,
+			Score:      score,
+			Credit:     v.Credit,
+			CommentNum: v.CommentCount,
 		}
 	}
 

@@ -50,11 +50,13 @@ func Info(c *fiber.Ctx) (err error) {
 			}
 		}
 		response.Courses = append(response.Courses, models.CourseAllResponse{
-			ID:        int(v.ID),
-			Name:      v.Name,
-			Institute: v.Institute,
-			Code:      v.Code,
-			Score:     score,
+			ID:         int(v.ID),
+			Name:       v.Name,
+			Institute:  v.Institute,
+			Code:       v.Code,
+			Score:      score,
+			Credit:     v.Credit,
+			CommentNum: v.CommentCount,
 		})
 	}
 
