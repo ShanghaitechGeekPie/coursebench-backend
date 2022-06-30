@@ -101,9 +101,11 @@ func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
 
 	Courses = make([]models.CourseAllResponse, len(c))
 	for i, v := range c {
-		score := 0.0
+		score := make([]float64, models.ScoreLength)
 		if v.CommentCount != 0 {
-			score = float64(v.Scores[0]) / float64(v.CommentCount)
+			for j := 0; j < models.ScoreLength; j++ {
+				score[j] = float64(v.Scores[j]) / float64(v.CommentCount)
+			}
 		}
 		Courses[i] = models.CourseAllResponse{
 			ID:        int(v.ID),
