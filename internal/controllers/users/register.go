@@ -1,6 +1,7 @@
 package users
 
 import (
+	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,7 @@ type RegisterRequest struct {
 	Password string           `json:"password"`
 	Year     int              `json:"year"`
 	Grade    models.GradeType `json:"grade"`
+	Captcha  string           `json:"captcha"`
 }
 
 func Register(c *fiber.Ctx) (err error) {
@@ -18,6 +20,9 @@ func Register(c *fiber.Ctx) (err error) {
 	var userReq RegisterRequest
 	if err = c.BodyParser(&userReq); err != nil {
 		return
+	}
+	if !queries.VerifyCaptcha(c, userReq.Captcha) {
+		return errors.New(errors.CaptchaMismatch)
 	}
 	user := models.User{
 		Email:    userReq.Email,

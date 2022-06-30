@@ -29,3 +29,7 @@ func GetUserID(ctx *fiber.Ctx) (uint, error) {
 	}
 	return id, nil
 }
+
+func GetSession(ctx *fiber.Ctx) (*session.Session, error) {
+	return store.Get(ctx)
+}

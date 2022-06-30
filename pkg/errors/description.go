@@ -29,6 +29,7 @@ var (
 	UserNotLogin          = createDescription("UserNotLogin", "用户未登录", SILENT, 400)
 	UserNotActive         = createDescription("UserNotActive", "用户邮箱未激活", SILENT, 400)
 	MailCodeInvalid       = createDescription("MailCodeInvalid", "邮箱验证码错误", SILENT, 400)
+	CaptchaMismatch       = createDescription("CaptchaMismatch", "验证码错误", SILENT, 400)
 
 	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 

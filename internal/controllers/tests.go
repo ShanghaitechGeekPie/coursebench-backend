@@ -11,4 +11,5 @@ func TestRoutes(r fiber.Router) {
 	test.CourseRoutes(route)
 	test.TeacherRoutes(route)
 	test.CourseGroupRoutes(route)
+	test.CaptchaRoutes(route)
 }
