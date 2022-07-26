@@ -14,4 +14,5 @@ func UserRoutes(r fiber.Router) {
 	route.Get("/profile/:id", users.Profile)
 	route.Post("/update_profile", users.UpdateProfile)
 	route.Post("/update_password", users.UpdatePassword)
+	route.Post("/get_captcha", users.GetCaptcha)
 }

@@ -43,16 +43,20 @@ func Info(c *fiber.Ctx) (err error) {
 		Courses:      make([]models.CourseAllResponse, 0),
 	}
 	for _, v := range teachers.Courses {
-		score := 0.0
+		score := make([]float64, models.ScoreLength)
 		if v.CommentCount != 0 {
-			score = float64(v.Scores[0]) / float64(v.CommentCount)
+			for j := 0; j < models.ScoreLength; j++ {
+				score[j] = float64(v.Scores[j]) / float64(v.CommentCount)
+			}
 		}
 		response.Courses = append(response.Courses, models.CourseAllResponse{
-			ID:        int(v.ID),
-			Name:      v.Name,
-			Institute: v.Institute,
-			Code:      v.Code,
-			Score:     score,
+			ID:         int(v.ID),
+			Name:       v.Name,
+			Institute:  v.Institute,
+			Code:       v.Code,
+			Score:      score,
+			Credit:     v.Credit,
+			CommentNum: v.CommentCount,
 		})
 	}
 
