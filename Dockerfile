@@ -18,7 +18,7 @@ ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build -ldflags="-s -w" -o backend cmd/coursebench-backend/main.go
 RUN go build -ldflags="-s -w" -o import_course cmd/import_course/main.go
 
-FROM busybox
+FROM curlimages/curl
 
 # Copy binary and config files from /build
 # to root folder of scratch container.
