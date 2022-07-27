@@ -1,6 +1,7 @@
 package users
 
 import (
+	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
@@ -21,17 +22,25 @@ func Register(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&userReq); err != nil {
 		return
 	}
-	if !queries.VerifyCaptcha(c, userReq.Captcha) {
+	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, userReq.Captcha) {
 		return errors.New(errors.CaptchaMismatch)
 	}
 	user := models.User{
-		Email:    userReq.Email,
-		Password: userReq.Password,
-		Year:     userReq.Year,
-		Grade:    userReq.Grade,
+		Email:       userReq.Email,
+		Password:    userReq.Password,
+		Year:        userReq.Year,
+		Grade:       userReq.Grade,
+		Avatar:      models.DefaultAvatarURL,
+		IsAnonymous: false,
 	}
 	if err = queries.Register(&user); err != nil {
 		return
+	}
+	if config.GlobalConf.DisableCaptchaAndMail {
+		err = queries.RegisterActive(user.ID, "")
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{

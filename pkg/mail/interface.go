@@ -2,6 +2,7 @@ package mail
 
 import (
 	"context"
+	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -12,6 +13,9 @@ import (
 
 // PostMail 用户注册，发送邮件
 func PostMail(user *models.User) (err error) {
+	if config.GlobalConf.DisableCaptchaAndMail {
+		return nil
+	}
 	code := uuid.New().String()
 	ctx := context.Background()
 	redis := database.GetRedis()
@@ -25,6 +29,9 @@ func PostMail(user *models.User) (err error) {
 
 // CheckCode 检查邮件验证码是否正确
 func CheckCode(user *models.User, code string) (ok bool, err error) {
+	if config.GlobalConf.DisableCaptchaAndMail {
+		return true, nil
+	}
 	ctx := context.Background()
 	rds := database.GetRedis()
 	result := rds.Get(ctx, fmt.Sprintf("mail_code:%d", user.ID))

@@ -1,20 +1,13 @@
 package users
 
 import (
+	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
-
-type ProfileResponse struct {
-	Email    string           `json:"email"`
-	Year     int              `json:"year"`
-	Grade    models.GradeType `json:"grade"`
-	NickName string           `json:"nickname"`
-	RealName string           `json:"realname"`
-}
 
 func Profile(c *fiber.Ctx) error {
 	id_s := c.Params("id", "GG")
@@ -23,8 +16,14 @@ func Profile(c *fiber.Ctx) error {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 	id := uint(id_i)
-	user, err := queries.GetUserByID(id)
-	response := ProfileResponse{Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName}
+	uid, err := session.GetUserID(c)
+	if err != nil && !errors.Is(err, errors.UserNotLogin) {
+		return err
+	}
+	response, err := queries.GetProfile(id, uid)
+	if err != nil {
+		return err
+	}
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,

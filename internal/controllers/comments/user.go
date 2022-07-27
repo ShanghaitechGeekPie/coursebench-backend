@@ -5,23 +5,21 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
+	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
 
 type CommentResponse struct {
-	ID          uint   `json:"id"`
-	Title       string `json:"title"`
-	Content     string `json:"content"`
-	CreateTime  int    `json:"post_time"`
-	UpdateTime  int    `json:"update_time"`
-	Semester    int    `json:"semester"`
-	IsAnonymous bool   `json:"is_anonymous"`
-	User        *struct {
-		ID       uint   `json:"id"`
-		Nickname string `json:"nickname"`
-	} `json:"user"`
-	Course struct {
+	ID          uint                    `json:"id"`
+	Title       string                  `json:"title"`
+	Content     string                  `json:"content"`
+	CreateTime  int                     `json:"post_time"`
+	UpdateTime  int                     `json:"update_time"`
+	Semester    int                     `json:"semester"`
+	IsAnonymous bool                    `json:"is_anonymous"`
+	User        *models.ProfileResponse `json:"user"`
+	Course      struct {
 		ID        uint   `json:"id"`
 		Name      string `json:"name"`
 		Code      string `json:"code"`
@@ -39,6 +37,7 @@ type CommentResponse struct {
 
 func GenerateResponse(comments []models.Comment, uid uint) (response []CommentResponse) {
 	for _, v := range comments {
+		anonymous := v.IsAnonymous || v.User.IsAnonymous
 		c := CommentResponse{
 			ID:          v.ID,
 			Title:       v.Title,
@@ -46,7 +45,7 @@ func GenerateResponse(comments []models.Comment, uid uint) (response []CommentRe
 			CreateTime:  v.CreateTime,
 			UpdateTime:  v.UpdateTime,
 			Semester:    v.Semester,
-			IsAnonymous: v.IsAnonymous,
+			IsAnonymous: anonymous,
 			Course: struct {
 				ID        uint   `json:"id"`
 				Name      string `json:"name"`
@@ -71,14 +70,9 @@ func GenerateResponse(comments []models.Comment, uid uint) (response []CommentRe
 			},
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
-		if !c.IsAnonymous || v.User.ID == uid {
-			c.User = &struct {
-				ID       uint   `json:"id"`
-				Nickname string `json:"nickname"`
-			}{
-				ID:       v.User.ID,
-				Nickname: v.User.NickName,
-			}
+		if !anonymous || v.User.ID == uid {
+			t, _ := queries.GetProfile(v.UserID, uid)
+			c.User = &t
 		}
 		for _, t := range v.CourseGroup.Teachers {
 			c.Group.Teachers = append(c.Group.Teachers, struct {

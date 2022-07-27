@@ -112,7 +112,7 @@ func Login(email, password string) (*models.User, error) {
 	return user, nil
 }
 
-func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, realname string) (err error) {
+func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, realname string, isAnonymous bool) (err error) {
 	db := database.GetDB()
 	user, err := GetUserByID(id)
 	if err != nil {
@@ -134,7 +134,8 @@ func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, r
 	user.Grade = grade
 	user.NickName = nickname
 	user.RealName = realname
-	err = db.Select("year", "grade", "nick_name", "real_name").Save(user).Error
+	user.IsAnonymous = isAnonymous
+	err = db.Select("year", "grade", "nick_name", "real_name", "is_anonymous").Save(user).Error
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
@@ -183,12 +184,26 @@ func GetUserByID(id uint) (*models.User, error) {
 	return user, nil
 }
 
+// id: 被查询用户的id
+// uid: 查询用户的id
+func GetProfile(id uint, uid uint) (models.ProfileResponse, error) {
+	user, err := GetUserByID(id)
+	if err != nil {
+		return models.ProfileResponse{}, err
+	}
+	if user.IsAnonymous && id != uid {
+		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: user.Avatar, IsAnonymous: user.IsAnonymous}, nil
+	} else {
+		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: user.Avatar}, nil
+	}
+}
+
 func CheckYear(year int) bool {
-	return year >= 2014 && year <= time.Now().Year()
+	return year == 0 || (year >= 2014 && year <= time.Now().Year())
 }
 
 func CheckGrade(grade models.GradeType) bool {
-	return grade == models.Undergraduate || grade == models.Postgraduate || grade == models.PhDStudent
+	return grade == models.Undergraduate || grade == models.Postgraduate || grade == models.PhDStudent || grade == models.UnknownGrade
 }
 
 func CheckEmail(email string) bool {
@@ -217,7 +232,7 @@ func CheckPassword(password string) bool {
 }
 
 func CheckNickName(nickname string) bool {
-	if len(nickname) < 2 || len(nickname) > 20 {
+	if len(nickname) > 20 {
 		return false
 	}
 	r := []rune(nickname)
@@ -230,7 +245,7 @@ func CheckNickName(nickname string) bool {
 }
 
 func CheckRealName(realname string) bool {
-	if len(realname) < 2 || len(realname) > 20 {
+	if len(realname) > 20 {
 		return false
 	}
 	r := []rune(realname)
