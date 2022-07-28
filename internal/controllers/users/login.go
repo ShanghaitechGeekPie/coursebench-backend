@@ -1,6 +1,7 @@
 package users
 
 import (
+	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -11,6 +12,7 @@ import (
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Captcha  string `json:"captcha"`
 }
 
 type LoginResponse struct {
@@ -27,6 +29,9 @@ func Login(c *fiber.Ctx) (err error) {
 	var request LoginRequest
 	if err = c.BodyParser(&request); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
+	}
+	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, request.Captcha) {
+		return errors.New(errors.CaptchaMismatch)
 	}
 
 	user, err := queries.Login(request.Email, request.Password)
