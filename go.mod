@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/badoux/checkmail v1.2.1
-	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gofiber/fiber/v2 v2.24.0
 	github.com/google/uuid v1.3.0

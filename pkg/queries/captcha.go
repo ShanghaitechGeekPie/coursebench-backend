@@ -2,10 +2,10 @@ package queries
 
 import (
 	"bytes"
+	"coursebench-backend/3rd/captcha"
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/errors"
 	"encoding/base64"
-	"github.com/dchest/captcha"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"image/png"
