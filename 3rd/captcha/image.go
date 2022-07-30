@@ -71,10 +71,9 @@ func (m *Image) getRandomPalette() color.Palette {
 	// Transparent color.
 	p[0] = color.RGBA{0xFF, 0xFF, 0xFF, 0x00}
 	// Primary color.
-	prim := color.RGBA{
-		uint8(m.rng.Intn(256)),
-		uint8(m.rng.Intn(256)),
-		uint8(m.rng.Intn(256)),
+	prim := color.RGBA{64 + uint8(m.rng.Intn(128)),
+		64 + uint8(m.rng.Intn(128)),
+		64 + uint8(m.rng.Intn(128)),
 		0xFF,
 	}
 	p[1] = prim
