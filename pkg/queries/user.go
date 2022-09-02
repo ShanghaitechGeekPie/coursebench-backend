@@ -31,11 +31,12 @@ func Register(u *models.User) error {
 	}
 
 	// 检查邮箱是否已存在
-	result := db.Where("email = ?", u.Email).Take(&models.User{})
+	user := &models.User{}
+	result := db.Where("email = ?", u.Email).Take(user)
 	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
-	if result.RowsAffected > 0 {
+	if result.RowsAffected > 0 && user.IsActive {
 		return errors.New(errors.UserEmailDuplicated)
 	}
 
@@ -46,7 +47,12 @@ func Register(u *models.User) error {
 	u.Password = string(hash)
 	u.IsActive = false
 
-	if err := db.Create(u).Error; err != nil {
+	if result.RowsAffected > 0 {
+		err = db.Save(u).Error
+	} else {
+		err = db.Create(u).Error
+	}
+	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
