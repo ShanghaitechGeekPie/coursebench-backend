@@ -1,6 +1,7 @@
 package users
 
 import (
+	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ func RegisterActive(c *fiber.Ctx) (err error) {
 	c.Accepts("application/json")
 	var activeReq RegisterActiveRequest
 	if err = c.BodyParser(&activeReq); err != nil {
-		return
+		return errors.Wrap(err, errors.InvalidArgument)
 	}
 	err = queries.RegisterActive(activeReq.ID, activeReq.Code)
 	if err != nil {

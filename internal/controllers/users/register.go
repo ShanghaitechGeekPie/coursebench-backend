@@ -20,7 +20,7 @@ func Register(c *fiber.Ctx) (err error) {
 	c.Accepts("application/json")
 	var userReq RegisterRequest
 	if err = c.BodyParser(&userReq); err != nil {
-		return
+		return errors.Wrap(err, errors.InvalidArgument)
 	}
 	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, userReq.Captcha) {
 		return errors.New(errors.CaptchaMismatch)
