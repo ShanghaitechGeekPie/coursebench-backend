@@ -36,10 +36,13 @@ func Register(u *models.User) error {
 	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
-	if result.RowsAffected > 0 && user.IsActive {
-		return errors.New(errors.UserEmailDuplicated)
+	if result.RowsAffected > 0 {
+		if user.IsActive {
+			return errors.New(errors.UserEmailDuplicated)
+		} else {
+			db.Delete(user)
+		}
 	}
-
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.Wrap(err, errors.InternalServerError)
@@ -47,12 +50,7 @@ func Register(u *models.User) error {
 	u.Password = string(hash)
 	u.IsActive = false
 
-	if result.RowsAffected > 0 {
-		err = db.Save(u).Error
-	} else {
-		err = db.Create(u).Error
-	}
-	if err != nil {
+	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
