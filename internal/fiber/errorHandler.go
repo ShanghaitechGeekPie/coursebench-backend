@@ -1,8 +1,10 @@
 package fiber
 
 import (
+	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
 )
@@ -32,7 +34,8 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	if !ok {
 		userError = errors.Wrap(err, errors.UnCaughtError).(errors.UserError)
 	}
-	log.Printf("%s, %s, %s, %s\n", userError.Error(), userError.Name(), userError.Cause().Error(), userError.Stacktrace())
+	errorMsg := fmt.Sprintf("%s, %s, %s, %s", userError.Error(), userError.Name(), userError.Cause().Error(), userError.Stacktrace())
+	log.Println(errorMsg)
 
 	// TODO: Log error
 	/*
@@ -41,11 +44,14 @@ func errorHandler(c *fiber.Ctx, err error) error {
 			logs.GetLogger().Log(wrappedLog)
 		}*/
 
+	if !config.GlobalConf.InDevelopment {
+		errorMsg = userError.Error()
+	}
 	// Return status code with error message
 	return c.Status(userError.StatusCode()).JSON(models.ErrorResponse{
 		Timestamp: userError.Time(),
 		Errno:     userError.Name(),
-		Message:   userError.Error(),
+		Message:   errorMsg,
 		Error:     true,
 	})
 }
