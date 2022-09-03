@@ -45,14 +45,15 @@ func errorHandler(c *fiber.Ctx, err error) error {
 		}*/
 
 	if !config.GlobalConf.InDevelopment {
-		errorMsg = userError.Error()
+		errorMsg = ""
 	}
 	// Return status code with error message
 	return c.Status(userError.StatusCode()).JSON(models.ErrorResponse{
-		Timestamp: userError.Time(),
-		Errno:     userError.Name(),
-		Message:   errorMsg,
-		Error:     true,
+		Timestamp:   userError.Time(),
+		Errno:       userError.Name(),
+		Message:     userError.Error(),
+		Error:       true,
+		FullMessage: errorMsg,
 	})
 }
 
