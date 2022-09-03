@@ -8,8 +8,9 @@ type OKResponse struct {
 }
 
 type ErrorResponse struct {
-	Error     bool      `json:"error" example:"true"`
-	Errno     string    `json:"code"  example:"123"`
-	Message   string    `json:"msg"`
-	Timestamp time.Time `json:"timestamp"`
+	Error       bool      `json:"error" example:"true"`
+	Errno       string    `json:"code"  example:"123"`
+	Message     string    `json:"msg"`
+	Timestamp   time.Time `json:"timestamp"`
+	FullMessage string    `json:"full_msg"`
 }
