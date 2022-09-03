@@ -4,6 +4,7 @@ import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/fiber"
 	"coursebench-backend/pkg/database"
+	"coursebench-backend/pkg/log"
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/modelRegister"
 	_ "coursebench-backend/pkg/models"
@@ -12,6 +13,7 @@ import (
 
 func main() {
 	config.SetupViper()
+	log.InitLog()
 	database.InitDB()
 	database.InitRedis()
 	mail.InitSMTP()

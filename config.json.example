@@ -28,5 +28,8 @@
   "fiber": {
     "listen": "127.0.0.1:10001",
     "reverse_proxy_depth": 1
+  },
+  "log": {
+    "log_file": "coursebench.log"
   }
 }

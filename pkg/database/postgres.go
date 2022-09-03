@@ -6,7 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
+	syslog "log"
 	"time"
 )
 
@@ -30,7 +30,7 @@ var db *gorm.DB = nil
 func InitDB() {
 	config := viper.Sub("postgres")
 	if config == nil {
-		log.Println("Postgres config not found")
+		syslog.Println("Postgres config not found")
 		return
 	}
 	config.SetDefault("ssl", "disable")
@@ -83,7 +83,15 @@ func newPostgreSQLConnection(dbname string, logLevel logger.LogLevel) (*gorm.DB,
 	// Define database connection for PostgreSQL.
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s", host, user, password, dbname, port, ssl, timezone)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logLevel),
+		Logger: logger.New(
+			syslog.Default(),
+			logger.Config{
+				SlowThreshold:             time.Second, // Slow SQL threshold
+				LogLevel:                  logger.Info, // Log level
+				IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+				Colorful:                  true,        // Disable color
+			},
+		),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error, not connected to database, %w", err)
