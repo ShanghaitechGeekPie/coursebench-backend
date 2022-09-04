@@ -30,6 +30,8 @@ var (
 	UserNotActive         = createDescription("UserNotActive", "用户邮箱未激活", SILENT, 400)
 	MailCodeInvalid       = createDescription("MailCodeInvalid", "邮箱验证码错误", SILENT, 400)
 	CaptchaMismatch       = createDescription("CaptchaMismatch", "验证码错误", SILENT, 400)
+	NoCaptchaToken        = createDescription("NoCaptchaToken", "未请求过验证码Token", SILENT, 400)
+	CaptchaExpired        = createDescription("CaptchaExpired", "验证码已过期", SILENT, 400)
 
 	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 

@@ -30,8 +30,10 @@ func Login(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&request); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
-	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, request.Captcha) {
-		return errors.New(errors.CaptchaMismatch)
+	if !config.GlobalConf.DisableCaptchaAndMail {
+		if err = queries.VerifyCaptcha(c, request.Captcha); err != nil {
+			return err
+		}
 	}
 
 	user, err := queries.Login(request.Email, request.Password)

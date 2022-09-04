@@ -29,8 +29,12 @@ func Verify(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&request); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
+	err = queries.VerifyCaptcha(c, request.Code)
+	if err != nil {
+		return err
+	}
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  queries.VerifyCaptcha(c, request.Code),
+		Data:  nil,
 		Error: false,
 	})
 }

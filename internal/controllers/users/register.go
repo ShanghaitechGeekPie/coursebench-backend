@@ -22,9 +22,12 @@ func Register(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&userReq); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
-	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, userReq.Captcha) {
-		return errors.New(errors.CaptchaMismatch)
+	if !config.GlobalConf.DisableCaptchaAndMail {
+		if err = queries.VerifyCaptcha(c, userReq.Captcha); err != nil {
+			return
+		}
 	}
+
 	user := models.User{
 		Email:       userReq.Email,
 		Password:    userReq.Password,

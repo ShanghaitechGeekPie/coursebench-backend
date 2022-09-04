@@ -40,33 +40,33 @@ func GenerateCaptcha(ctx *fiber.Ctx) (string, error) {
 	return base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
 }
 
-func VerifyCaptcha(ctx *fiber.Ctx, digits string) bool {
+func VerifyCaptcha(ctx *fiber.Ctx, digits string) error {
 	sess, err := session.GetSession(ctx)
 	if err != nil {
-		return false
+		return errors.New(errors.NoCaptchaToken)
 	}
 	id := sess.Get("captcha_code")
 	if id == nil {
-		return false
+		return errors.New(errors.NoCaptchaToken)
 	}
 	id_s := ""
 	var gen_time int64
 	ok := false
 	if id_s, ok = id.(string); !ok {
-		return false
+		return errors.New(errors.InternalServerError)
 	}
 	if gen_time, ok = sess.Get("captcha_time").(int64); !ok {
-		return false
+		return errors.New(errors.InternalServerError)
 	}
 	if gen_time+CaptchaExpire < time.Now().Unix() {
-		return false
+		return errors.New(errors.CaptchaExpired)
 	}
-	res := id_s == digits
-	if res {
-		sess.Set("captcha_time", int64(-10000))
-		if err := sess.Save(); err != nil {
-			return false
-		}
+	if id_s != digits {
+		return errors.New(errors.CaptchaMismatch)
 	}
-	return res
+	sess.Set("captcha_time", int64(-10000))
+	if err := sess.Save(); err != nil {
+		return errors.New(errors.InternalServerError)
+	}
+	return nil
 }

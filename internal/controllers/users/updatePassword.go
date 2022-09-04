@@ -22,8 +22,10 @@ func UpdatePassword(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 
-	if !config.GlobalConf.DisableCaptchaAndMail && !queries.VerifyCaptcha(c, request.Captcha) {
-		return errors.New(errors.CaptchaMismatch)
+	if !config.GlobalConf.DisableCaptchaAndMail {
+		if err = queries.VerifyCaptcha(c, request.Captcha); err != nil {
+			return
+		}
 	}
 
 	id, err := session.GetUserID(c)
