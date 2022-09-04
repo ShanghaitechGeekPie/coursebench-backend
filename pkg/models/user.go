@@ -27,6 +27,8 @@ type User struct {
 	IsActive    bool
 	Avatar      string
 	IsAnonymous bool
+	//LikeComments    []*Comment `gorm:"many2many:comment_likes;"`
+	//DislikeComments []*Comment `gorm:"many2many:comment_dislikes;"`
 }
 
 func init() {

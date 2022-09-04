@@ -18,6 +18,8 @@ type CommentResponse struct {
 	UpdateTime  int                     `json:"update_time"`
 	Semester    int                     `json:"semester"`
 	IsAnonymous bool                    `json:"is_anonymous"`
+	Like        int                     `json:"like"`
+	Dislike     int                     `json:"dislike"`
 	User        *models.ProfileResponse `json:"user"`
 	Course      struct {
 		ID        uint   `json:"id"`
@@ -46,6 +48,8 @@ func GenerateResponse(comments []models.Comment, uid uint) (response []CommentRe
 			UpdateTime:  v.UpdateTime,
 			Semester:    v.Semester,
 			IsAnonymous: anonymous,
+			Like:        v.Like,
+			Dislike:     v.Dislike,
 			Course: struct {
 				ID        uint   `json:"id"`
 				Name      string `json:"name"`

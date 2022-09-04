@@ -12,4 +12,5 @@ func CommentRoutes(r fiber.Router) {
 	route.Post("/delete", comments.Delete)
 	route.Get("/user/:id", comments.UserComment)
 	route.Get("/course_group/:id", comments.CourseGroupComment)
+	route.Post("/like", comments.Like)
 }

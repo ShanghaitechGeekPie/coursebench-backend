@@ -79,6 +79,8 @@ func Post(c *fiber.Ctx) (err error) {
 		CreateTime:          postTime,
 		UpdateTime:          postTime,
 		Scores:              request.Scores,
+		Like:                0,
+		Dislike:             0,
 	}
 
 	// 插入评论作为一个事务，若插入失败则回滚
