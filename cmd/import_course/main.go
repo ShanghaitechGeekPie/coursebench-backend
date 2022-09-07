@@ -4,15 +4,16 @@ import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/log"
 	"coursebench-backend/pkg/modelRegister"
 	"coursebench-backend/pkg/models"
 	_ "coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
+	syslog "log"
 	"os"
 	"sort"
 	"strconv"
@@ -21,6 +22,7 @@ import (
 
 func main() {
 	config.SetupViper()
+	log.InitLog()
 	database.InitDB()
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
@@ -62,7 +64,7 @@ func main() {
 				panic(err)
 			}
 		} else {
-			fmt.Printf("Find course %s %d\n", code, course.ID)
+			syslog.Printf("Find course %s %d\n", code, course.ID)
 		}
 		t := strings.ReplaceAll(record[12], `'`, `"`)
 		var teacherNames []string
@@ -123,11 +125,11 @@ func main() {
 			}
 			teacherIDs = append(teacherIDs, int(teacher.ID))
 		}
-		fmt.Println(teacherIDs)
+		syslog.Println(teacherIDs)
 		group, err := queries.AddCourseGroup("", int(course.ID), teacherIDs)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Add course group %s %d %d\n", code, course.ID, group.ID)
+		syslog.Printf("Add course group %s %d %d\n", code, course.ID, group.ID)
 	}
 }
