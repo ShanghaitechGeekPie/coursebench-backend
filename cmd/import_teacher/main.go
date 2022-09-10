@@ -17,6 +17,7 @@ func main() {
 	config.SetupViper()
 	log.InitLog()
 	database.InitDB()
+	syslog.Println("Starting to import teacher data...")
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {
@@ -61,4 +62,5 @@ func main() {
 		}
 		syslog.Printf("Teacher %s updated", name)
 	}
+	syslog.Println("Finished importing teacher data")
 }
