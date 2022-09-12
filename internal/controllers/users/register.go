@@ -33,7 +33,7 @@ func Register(c *fiber.Ctx) (err error) {
 		Password:    userReq.Password,
 		Year:        userReq.Year,
 		Grade:       userReq.Grade,
-		Avatar:      models.DefaultAvatarURL,
+		Avatar:      "",
 		IsAnonymous: false,
 	}
 	if err = queries.Register(&user); err != nil {

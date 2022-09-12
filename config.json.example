@@ -3,7 +3,14 @@
     "in_development":true,
     "disable_captcha_and_mail": false,
     "service_name":"CourseBench Backend",
-    "server_url": "http://127.0.0.1:10001"
+    "server_url": "http://127.0.0.1:10001",
+    "avatar_size_limit": 1048576
+  },
+  "minio": {
+    "username": "course-bench",
+    "password": "123456",
+    "bucket": "course-bench",
+    "endpoint": "cdn.geekpie.club"
   },
   "postgres": {
     "host": "127.0.0.1",

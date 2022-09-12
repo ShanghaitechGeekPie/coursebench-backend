@@ -41,6 +41,8 @@ var (
 	CommentAlreadyExists = createDescription("CommentAlreadyExists", "评论已存在", SILENT, 400)
 	CommentNotExists     = createDescription("CommentNotExists", "评论不存在", SILENT, 400)
 
+	FileTooLarge = createDescription("FileTooLarge", "文件过大", SILENT, 400)
+
 	InvalidArgument = createDescription("InvalidArgument", "参数非法", SILENT, 400)
 
 	PermissionDenied = createDescription("PermissionDenied", "您没有权限执行此操作", SILENT, 403)

@@ -9,6 +9,7 @@ type GlobalConfig struct {
 	InDevelopment         bool   `mapstructure:"in_development"`
 	ServerURL             string `mapstructure:"server_url"`
 	DisableCaptchaAndMail bool   `mapstructure:"disable_captcha_and_mail"`
+	AvatarSizeLimit       int64  `mapstructure:"avatar_size_limit"`
 }
 
 var GlobalConf GlobalConfig

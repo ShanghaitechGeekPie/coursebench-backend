@@ -5,6 +5,7 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
+	"fmt"
 	"github.com/badoux/checkmail"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -195,10 +196,14 @@ func GetProfile(id uint, uid uint) (models.ProfileResponse, error) {
 	if err != nil {
 		return models.ProfileResponse{}, err
 	}
+	avatar := ""
+	if user.Avatar != "" {
+		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.MinioConf.Endpoint, database.MinioConf.Bucket, user.Avatar)
+	}
 	if user.IsAnonymous && id != uid {
-		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: user.Avatar, IsAnonymous: user.IsAnonymous}, nil
+		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous}, nil
 	} else {
-		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: user.Avatar}, nil
+		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar}, nil
 	}
 }
 
