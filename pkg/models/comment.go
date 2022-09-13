@@ -14,6 +14,7 @@ type Comment struct {
 	User                User
 	CourseGroup         CourseGroup
 	CourseGroupID       uint `gorm:"index"`
+	CourseID            uint `gorm:"index"`
 	Semester            int
 	Scores              pq.Int64Array `gorm:"type:bigint[]"`
 	Title               string

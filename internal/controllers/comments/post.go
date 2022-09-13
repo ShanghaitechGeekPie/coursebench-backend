@@ -60,7 +60,8 @@ func Post(c *fiber.Ctx) (err error) {
 	} else if err != gorm.ErrRecordNotFound {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
-	err = db.Where("id=?", request.Group).Take(&models.CourseGroup{}).Error
+	group := models.CourseGroup{}
+	err = db.Where("id=?", request.Group).Take(&group).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.Wrap(err, errors.InvalidArgument)
@@ -71,6 +72,7 @@ func Post(c *fiber.Ctx) (err error) {
 	comment := &models.Comment{
 		UserID:              uid,
 		CourseGroupID:       request.Group,
+		CourseID:            group.CourseID,
 		Title:               request.Title,
 		Content:             request.Content,
 		Semester:            request.Semester,
