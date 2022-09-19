@@ -9,11 +9,11 @@ import (
 )
 
 type UpdateProfileRequest struct {
-	Year        int              `json:"year"`
-	Grade       models.GradeType `json:"grade"`
-	NickName    string           `json:"nickname"`
-	RealName    string           `json:"realname"`
-	IsAnonymous bool             `json:"is_anonymous"`
+	Year     int              `json:"year"`
+	Grade    models.GradeType `json:"grade"`
+	NickName string           `json:"nickname"`
+	//RealName    string           `json:"realname"`
+	IsAnonymous bool `json:"is_anonymous"`
 }
 
 func UpdateProfile(c *fiber.Ctx) (err error) {
@@ -26,7 +26,7 @@ func UpdateProfile(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	err = queries.UpdateProfile(id, request.Year, request.Grade, request.NickName, request.RealName, request.IsAnonymous)
+	err = queries.UpdateProfile(id, request.Year, request.Grade, request.NickName, "", request.IsAnonymous)
 	if err != nil {
 		return err
 	}

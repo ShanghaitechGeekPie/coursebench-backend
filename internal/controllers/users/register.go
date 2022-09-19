@@ -14,6 +14,7 @@ type RegisterRequest struct {
 	Year     int              `json:"year"`
 	Grade    models.GradeType `json:"grade"`
 	Captcha  string           `json:"captcha"`
+	Nickname string           `json:"nickname"`
 }
 
 func Register(c *fiber.Ctx) (err error) {
@@ -33,6 +34,7 @@ func Register(c *fiber.Ctx) (err error) {
 		Password:    userReq.Password,
 		Year:        userReq.Year,
 		Grade:       userReq.Grade,
+		NickName:    userReq.Nickname,
 		Avatar:      "",
 		IsAnonymous: false,
 	}
