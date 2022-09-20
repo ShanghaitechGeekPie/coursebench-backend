@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	syslog "log"
 )
 
 type GlobalConfig struct {
@@ -11,8 +12,12 @@ type GlobalConfig struct {
 	DisableCaptchaAndMail bool   `mapstructure:"disable_captcha_and_mail"`
 	AvatarSizeLimit       int64  `mapstructure:"avatar_size_limit"`
 }
+type TextConfig struct {
+	ServiceName string `mapstructure:"service_name"`
+}
 
 var GlobalConf GlobalConfig
+var Text TextConfig
 
 func SetupViper() {
 	viper.SetConfigName("config")
@@ -31,4 +36,9 @@ func SetupViper() {
 		panic(fmt.Errorf("Fatal error config file: %w \n", err))
 	}
 
+	config = viper.Sub("text")
+	err = config.Unmarshal(&Text)
+	if err != nil {
+		syslog.Fatalf("Fatal error text config file: %v \n", err)
+	}
 }

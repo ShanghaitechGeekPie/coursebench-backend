@@ -6,6 +6,9 @@
     "server_url": "http://127.0.0.1:10001",
     "avatar_size_limit": 1048576
   },
+  "text": {
+    "service_name":"GeekPie_ 上科大评教平台"
+  },
   "minio": {
     "username": "course-bench",
     "password": "123456",

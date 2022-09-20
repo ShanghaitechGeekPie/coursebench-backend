@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/mail"
@@ -30,6 +31,12 @@ func Register(u *models.User) error {
 	if !CheckEmail(u.Email) {
 		return errors.New(errors.InvalidArgument)
 	}
+	if !CheckNickName(u.NickName) {
+		return errors.New(errors.InvalidArgument)
+	}
+	if !CheckRealName(u.RealName) {
+		return errors.New(errors.InvalidArgument)
+	}
 
 	// 检查邮箱是否已存在
 	user := &models.User{}
@@ -55,7 +62,8 @@ func Register(u *models.User) error {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
-	err = mail.PostMail(u)
+	body := fmt.Sprintf(`<html><body><h1>欢迎注册%s</h1> <p>请点击该链接完成注册:</p><a href="{activeURL}">注册链接 </a> <br> <p>如果链接无法点击，请手动复制该链接并粘贴至浏览器：{activeURL} </p><br><br> <p>如果您没有注册过我们的服务，请无视该邮件</p> </body></html>`, config.Text.ServiceName)
+	err = mail.PostMail(u, "register_mail_code", "用户注册验证", "active", body)
 	if err != nil {
 		return err
 	}
@@ -73,7 +81,7 @@ func RegisterActive(id uint, code string) (err error) {
 	if result.RowsAffected == 0 {
 		return errors.New(errors.UserNotExists)
 	}
-	ok, err := mail.CheckCode(user, code)
+	ok, err := mail.CheckCode(user, code, "register_mail_code")
 	if err != nil {
 		return err
 	}

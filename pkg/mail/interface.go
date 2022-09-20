@@ -11,16 +11,16 @@ import (
 	"time"
 )
 
-// PostMail 用户注册，发送邮件
-func PostMail(user *models.User) (err error) {
+// PostMail 用户注册或找回密码，发送邮件
+func PostMail(user *models.User, service string, subject string, url string, body string) (err error) {
 	if config.GlobalConf.DisableCaptchaAndMail {
 		return nil
 	}
 	code := uuid.New().String()
 	ctx := context.Background()
 	redis := database.GetRedis()
-	redis.Set(ctx, fmt.Sprintf("mail_code:%d", user.ID), code, time.Hour*2)
-	err = sendMail(user, code)
+	redis.Set(ctx, fmt.Sprintf("%s:%d", service, user.ID), code, time.Hour*2)
+	err = sendMail(user, code, subject, url, body)
 	if err != nil {
 		return err
 	}
@@ -28,13 +28,13 @@ func PostMail(user *models.User) (err error) {
 }
 
 // CheckCode 检查邮件验证码是否正确
-func CheckCode(user *models.User, code string) (ok bool, err error) {
+func CheckCode(user *models.User, code string, service string) (ok bool, err error) {
 	if config.GlobalConf.DisableCaptchaAndMail {
 		return true, nil
 	}
 	ctx := context.Background()
 	rds := database.GetRedis()
-	result := rds.Get(ctx, fmt.Sprintf("mail_code:%d", user.ID))
+	result := rds.Get(ctx, fmt.Sprintf("%s:%d", service, user.ID))
 	if err := result.Err(); err != nil {
 		return false, errors.Wrap(err, errors.MailCodeInvalid)
 	}
