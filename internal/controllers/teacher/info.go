@@ -15,6 +15,7 @@ type InfoResponse struct {
 	Institute    string                     `json:"institute"`
 	Job          string                     `json:"job"`
 	Introduction string                     `json:"introduction"`
+	Photo        string                     `json:"photo"`
 	Courses      []models.CourseAllResponse `json:"courses"`
 }
 
@@ -40,6 +41,7 @@ func Info(c *fiber.Ctx) (err error) {
 		Institute:    teachers.Institute,
 		Job:          teachers.Job,
 		Introduction: teachers.Introduction,
+		Photo:        teachers.Photo,
 		Courses:      make([]models.CourseAllResponse, 0),
 	}
 	for _, v := range teachers.Courses {
