@@ -15,6 +15,58 @@ import (
 	"unicode"
 )
 
+func ResetPassword(email string) error {
+	if !CheckEmail(email) {
+		return errors.New(errors.InvalidArgument)
+	}
+	db := database.GetDB()
+	user := models.User{}
+	if err := db.Where("email = ?", email).Take(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New(errors.UserNotExists)
+		}
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	if !user.IsActive {
+		return errors.New(errors.UserNotActive)
+	}
+	body := fmt.Sprintf(`<html><body><h1>您正在重置您在%s的密码</h1> <p>请点击该链接继续完成密码重置:</p><a href="{activeURL}">密码重置链接 </a> <br> <p>如果链接无法点击，请手动复制该链接并粘贴至浏览器：{activeURL} </p><br><br> <p>如果您没有注册过我们的服务或您没有进行过密码重置，请无视该邮件</p> </body></html>`, config.Text.ServiceName)
+	return mail.PostMail(&user, "reset_password_mail_code", config.Text.ServiceName+"用户密码重置", "reset_password_active", body)
+}
+
+func ResetPasswordActive(id uint, code string, password string) (err error) {
+	if !CheckPassword(password) {
+		return errors.New(errors.InvalidArgument)
+	}
+	db := database.GetDB()
+	user := &models.User{}
+	result := db.Where("id = ?", id).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return errors.New(errors.UserNotExists)
+	}
+	if !user.IsActive {
+		return errors.New(errors.UserNotActive)
+	}
+	ok, err := mail.CheckCode(user, code, "reset_password_mail_code")
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New(errors.MailCodeInvalid)
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+
+		return errors.Wrap(err, errors.InternalServerError)
+	}
+	user.Password = string(hash)
+	db.Select("password").Save(user)
+	return nil
+}
+
 func Register(u *models.User) error {
 	db := database.GetDB()
 
@@ -63,7 +115,7 @@ func Register(u *models.User) error {
 	}
 
 	body := fmt.Sprintf(`<html><body><h1>欢迎注册%s</h1> <p>请点击该链接完成注册:</p><a href="{activeURL}">注册链接 </a> <br> <p>如果链接无法点击，请手动复制该链接并粘贴至浏览器：{activeURL} </p><br><br> <p>如果您没有注册过我们的服务，请无视该邮件</p> </body></html>`, config.Text.ServiceName)
-	err = mail.PostMail(u, "register_mail_code", "用户注册验证", "active", body)
+	err = mail.PostMail(u, "register_mail_code", config.Text.ServiceName+"用户注册验证", "active", body)
 	if err != nil {
 		return err
 	}

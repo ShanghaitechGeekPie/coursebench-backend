@@ -13,7 +13,7 @@ import (
 
 // PostMail 用户注册或找回密码，发送邮件
 func PostMail(user *models.User, service string, subject string, url string, body string) (err error) {
-	if config.GlobalConf.DisableCaptchaAndMail {
+	if config.GlobalConf.DisableMail {
 		return nil
 	}
 	code := uuid.New().String()
@@ -29,7 +29,7 @@ func PostMail(user *models.User, service string, subject string, url string, bod
 
 // CheckCode 检查邮件验证码是否正确
 func CheckCode(user *models.User, code string, service string) (ok bool, err error) {
-	if config.GlobalConf.DisableCaptchaAndMail {
+	if config.GlobalConf.DisableMail {
 		return true, nil
 	}
 	ctx := context.Background()

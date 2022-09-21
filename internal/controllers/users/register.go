@@ -23,7 +23,7 @@ func Register(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&userReq); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
-	if !config.GlobalConf.DisableCaptchaAndMail {
+	if !config.GlobalConf.DisableCaptcha {
 		if err = queries.VerifyCaptcha(c, userReq.Captcha); err != nil {
 			return
 		}
@@ -41,7 +41,7 @@ func Register(c *fiber.Ctx) (err error) {
 	if err = queries.Register(&user); err != nil {
 		return
 	}
-	if config.GlobalConf.DisableCaptchaAndMail {
+	if config.GlobalConf.DisableMail {
 		err = queries.RegisterActive(user.ID, "")
 		if err != nil {
 			return err

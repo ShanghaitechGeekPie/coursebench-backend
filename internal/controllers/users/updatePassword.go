@@ -22,7 +22,7 @@ func UpdatePassword(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 
-	if !config.GlobalConf.DisableCaptchaAndMail {
+	if !config.GlobalConf.DisableCaptcha {
 		if err = queries.VerifyCaptcha(c, request.Captcha); err != nil {
 			return
 		}

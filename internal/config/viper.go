@@ -7,10 +7,11 @@ import (
 )
 
 type GlobalConfig struct {
-	InDevelopment         bool   `mapstructure:"in_development"`
-	ServerURL             string `mapstructure:"server_url"`
-	DisableCaptchaAndMail bool   `mapstructure:"disable_captcha_and_mail"`
-	AvatarSizeLimit       int64  `mapstructure:"avatar_size_limit"`
+	InDevelopment   bool   `mapstructure:"in_development"`
+	ServerURL       string `mapstructure:"server_url"`
+	DisableCaptcha  bool   `mapstructure:"disable_captcha"`
+	DisableMail     bool   `mapstructure:"disable_mail"`
+	AvatarSizeLimit int64  `mapstructure:"avatar_size_limit"`
 }
 type TextConfig struct {
 	ServiceName string `mapstructure:"service_name"`

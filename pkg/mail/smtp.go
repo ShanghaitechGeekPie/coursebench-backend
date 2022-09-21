@@ -33,7 +33,7 @@ func sendMail(user *models.User, code string, subject string, url string, body s
 	m.SetHeader("To", user.Email)
 	m.SetHeader("Subject", subject)
 	activeUrl := fmt.Sprintf("%s/%s?id=%d&code=%s", config.GlobalConf.ServerURL, url, user.ID, code)
-	strings.Replace(body, "{activeUrl}", activeUrl, -1)
+	body = strings.Replace(body, "{activeURL}", activeUrl, -1)
 	m.SetBody("text/html", body)
 	d := gomail.NewDialer(smtpConfig.Host, smtpConfig.Port, smtpConfig.Username, smtpConfig.Password)
 	if err = d.DialAndSend(m); err != nil {
@@ -43,12 +43,12 @@ func sendMail(user *models.User, code string, subject string, url string, body s
 }
 
 func InitSMTP() {
-	config := viper.Sub("smtp")
-	if config == nil {
+	cfg := viper.Sub("smtp")
+	if cfg == nil {
 		panic("SMTP config not found")
 	}
 
-	err := config.Unmarshal(&smtpConfig)
+	err := cfg.Unmarshal(&smtpConfig)
 	if err != nil {
 		panic(err)
 	}

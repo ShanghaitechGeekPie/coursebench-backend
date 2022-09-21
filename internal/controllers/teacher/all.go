@@ -11,6 +11,7 @@ type AllResponse struct {
 	ID           uint   `json:"id"`
 	Name         string `json:"name"`
 	Institute    string `json:"institute"`
+	Photo        string `json:"photo"`
 	Job          string `json:"job"`
 	Introduction string `json:"introduction"`
 }
@@ -31,6 +32,7 @@ func All(c *fiber.Ctx) error {
 			Institute:    v.Institute,
 			Job:          v.Job,
 			Introduction: v.Introduction,
+			Photo:        v.Photo,
 		})
 	}
 
