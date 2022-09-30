@@ -1,13 +1,9 @@
 package main
 
 import (
-	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
-	"coursebench-backend/pkg/log"
-	"coursebench-backend/pkg/modelRegister"
 	"coursebench-backend/pkg/models"
-	_ "coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"encoding/csv"
 	"encoding/json"
@@ -20,17 +16,10 @@ import (
 	"strings"
 )
 
-func main() {
-	config.SetupViper()
-	log.InitLog()
-	database.InitDB()
+func ImportCourse(filePath string) {
+	syslog.Printf("Starting to import courses' data: %s\n", filePath)
 	db := database.GetDB()
-	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
-	if err != nil {
-		panic(err)
-	}
-
-	csvFile, err := os.Open("data_import/course.csv")
+	csvFile, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
 	}
@@ -132,4 +121,5 @@ func main() {
 		}
 		syslog.Printf("Add course group %s %d %d\n", code, course.ID, group.ID)
 	}
+	syslog.Printf("Finished importing courses' data: %s\n", filePath)
 }

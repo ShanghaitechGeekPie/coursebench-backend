@@ -16,14 +16,13 @@ COPY . .
 # and build the API server.
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build -ldflags="-s -w" -o backend cmd/coursebench-backend/main.go
-RUN go build -ldflags="-s -w" -o import_course cmd/import_course/main.go
-RUN go build -ldflags="-s -w" -o import_teacher cmd/import_teacher/main.go
+RUN go build -ldflags="-s -w" -o cmd_tools cmd/cmd_tools/main.go
 
 FROM alpine:latest
 
 # Copy binary and config files from /build
 # to root folder of scratch container.
-COPY --from=builder ["/build/backend", "/build/import_course", "/build/import_teacher","/"]
+COPY --from=builder ["/build/backend", "/build/cmd_tools", "/"]
 
 # Command to run when starting the container.
 ENTRYPOINT ["/backend"]

@@ -1,11 +1,8 @@
 package main
 
 import (
-	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
-	"coursebench-backend/pkg/log"
-	"coursebench-backend/pkg/modelRegister"
 	"coursebench-backend/pkg/models"
 	"encoding/csv"
 	"gorm.io/gorm"
@@ -13,18 +10,10 @@ import (
 	"os"
 )
 
-func main() {
-	config.SetupViper()
-	log.InitLog()
-	database.InitDB()
-	syslog.Println("Starting to import teacher data...")
+func ImportTeacher(filePath string) {
+	syslog.Printf("Starting to import teachers' data: %s\n", filePath)
 	db := database.GetDB()
-	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
-	if err != nil {
-		syslog.Fatalln(err)
-	}
-
-	csvFile, err := os.Open("data_import/teacher.csv")
+	csvFile, err := os.Open(filePath)
 	if err != nil {
 		syslog.Fatalln(err)
 	}
