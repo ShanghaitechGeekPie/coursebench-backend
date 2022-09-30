@@ -11,8 +11,9 @@ course-bench 的后端服务
 ```shell
 git clone git@github.com:ShanghaitechGeekPie/coursebench-backend.git
 cd coursebench-backend
-go build -o bin/coursebench-backend cmd/coursebench-backend/main.go
-go build -o bin/import_course cmd/import_course/main.go
+mkdir bin
+go build -o bin/coursebench-backend ./cmd/coursebench-backend/main.go
+go build -o bin/cmd_tools ./cmd/cmd_tools/main.go
 ```
 
 ## Configure
