@@ -285,6 +285,9 @@ func CheckEmail(email string) bool {
 	if err := checkmail.ValidateFormat(email); err != nil {
 		return false
 	}
+	if !strings.HasSuffix(email, config.GlobalConf.MailSuffix) {
+		return false
+	}
 	return true
 }
 
