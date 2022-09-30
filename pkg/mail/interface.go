@@ -34,12 +34,14 @@ func CheckCode(user *models.User, code string, service string) (ok bool, err err
 	}
 	ctx := context.Background()
 	rds := database.GetRedis()
-	result := rds.Get(ctx, fmt.Sprintf("%s:%d", service, user.ID))
+	key := fmt.Sprintf("%s:%d", service, user.ID)
+	result := rds.Get(ctx, key)
 	if err := result.Err(); err != nil {
 		return false, errors.Wrap(err, errors.MailCodeInvalid)
 	}
 	if result.Val() != code {
 		return false, nil
 	}
+	rds.Del(ctx, key)
 	return true, nil
 }
