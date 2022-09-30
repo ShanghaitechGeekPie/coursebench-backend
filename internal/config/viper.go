@@ -15,7 +15,8 @@ type GlobalConfig struct {
 	MailSuffix      string `mapstructure:"mail_suffix"`
 }
 type TextConfig struct {
-	ServiceName string `mapstructure:"service_name"`
+	ServiceName   string `mapstructure:"service_name"`
+	ServiceNameEN string `mapstructure:"service_name_en"`
 }
 
 var GlobalConf GlobalConfig

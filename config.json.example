@@ -9,7 +9,8 @@
     "mail_suffix": "@shanghaitech.edu.cn"
   },
   "text": {
-    "service_name":"GeekPie_ 上科大评教平台"
+    "service_name":"GeekPie_ CourseBench 评教平台",
+    "service_name_en":"GeekPie_ CourseBench"
   },
   "minio": {
     "username": "course-bench",
