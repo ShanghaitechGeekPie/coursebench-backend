@@ -20,6 +20,7 @@ type CommentResponse struct {
 	IsAnonymous bool                    `json:"is_anonymous"`
 	Like        int                     `json:"like"`
 	Dislike     int                     `json:"dislike"`
+	LikeStatus  int                     `json:"like_status"`
 	Score       []int64                 `json:"score"`
 	User        *models.ProfileResponse `json:"user"`
 	Course      struct {
@@ -38,8 +39,25 @@ type CommentResponse struct {
 	} `json:"group"`
 }
 
-func GenerateResponse(comments []models.Comment, uid uint) (response []CommentResponse) {
+type CommentLikeResult struct {
+	CommentID uint
+	IsLike    bool
+}
+
+func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentLikeResult) (response []CommentResponse) {
+	mp := make(map[uint]bool)
+	for _, v := range likeResult {
+		mp[v.CommentID] = v.IsLike
+	}
 	for _, v := range comments {
+		likeStatus := 0
+		if like, ok := mp[v.ID]; ok {
+			if like {
+				likeStatus = 1
+			} else {
+				likeStatus = 2
+			}
+		}
 		anonymous := v.IsAnonymous || v.User.IsAnonymous
 		c := CommentResponse{
 			ID:          v.ID,
@@ -51,6 +69,7 @@ func GenerateResponse(comments []models.Comment, uid uint) (response []CommentRe
 			IsAnonymous: anonymous,
 			Like:        v.Like,
 			Dislike:     v.Dislike,
+			LikeStatus:  likeStatus,
 			Score:       v.Scores,
 			Course: struct {
 				ID        uint   `json:"id"`
@@ -114,8 +133,13 @@ func UserComment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
+	var likeResult []CommentLikeResult
+	if uid != 0 {
+		db.Raw("SELECT comment_likes.comment_id,comment_likes.is_like from comments, comment_likes where comments.user_id = ? and comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL",
+			id, uid).Scan(&likeResult)
+	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid)
+	response = GenerateResponse(comments, uid, likeResult)
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,

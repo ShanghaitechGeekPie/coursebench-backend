@@ -29,8 +29,13 @@ func CourseComment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
+	var likeResult []CommentLikeResult
+	if uid != 0 {
+		db.Raw("SELECT comment_likes.comment_id,comment_likes.is_like from comments, comment_likes where comments.course_id = ? and comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL",
+			id, uid).Scan(&likeResult)
+	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid)
+	response = GenerateResponse(comments, uid, likeResult)
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,
