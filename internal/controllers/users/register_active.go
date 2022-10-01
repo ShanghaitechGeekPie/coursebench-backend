@@ -19,6 +19,9 @@ func RegisterActive(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 	err = queries.RegisterActive(activeReq.ID, activeReq.Code)
+	if errors.Is(err, errors.UserNotExists) {
+		return errors.New(errors.MailCodeInvalid)
+	}
 	if err != nil {
 		return
 	}

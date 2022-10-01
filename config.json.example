@@ -5,10 +5,12 @@
     "disable_mail": false,
     "service_name":"CourseBench Backend",
     "server_url": "http://127.0.0.1:10001",
-    "avatar_size_limit": 1048576
+    "avatar_size_limit": 1048576,
+    "mail_suffix": "@shanghaitech.edu.cn"
   },
   "text": {
-    "service_name":"GeekPie_ 上科大评教平台"
+    "service_name":"GeekPie_ CourseBench 评教平台",
+    "service_name_en":"GeekPie_ CourseBench"
   },
   "minio": {
     "username": "course-bench",

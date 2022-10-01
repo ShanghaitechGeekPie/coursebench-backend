@@ -114,7 +114,32 @@ func Register(u *models.User) error {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
-	body := fmt.Sprintf(`<html><body><h1>欢迎注册%s</h1> <p>请点击该链接完成注册:</p><a href="{activeURL}">注册链接 </a> <br> <p>如果链接无法点击，请手动复制该链接并粘贴至浏览器：{activeURL} </p><br><br> <p>如果您没有注册过我们的服务，请无视该邮件</p> </body></html>`, config.Text.ServiceName)
+	body := fmt.Sprintf(`<html><body>
+<h1>欢迎注册%s</h1> <p>我们已经接收到您的电子邮箱验证申请，请点击以下链接完成注册。</p>
+<p>验证完成后，您将能够即刻发布课程评价，并与其他用户互动。</p>
+<a href="{activeURL}">注册链接 </a> <br> 
+<p>如无法点击，请手动复制该链接并粘贴至浏览器地址栏以完成注册：{activeURL} </p>
+<p>预祝您在 CourseBench 玩得开心！</p> <br>
+<p>如果您需要其它任何帮助，欢迎随时联系我们。</p>
+<p>电邮地址：zhaoqch1@shanghaitech.edu.cn</p>
+<p>如您并未注册CourseBench账号，请无视本邮件。</p><br>
+<p>此致</p>
+<p>%s 团队</p>
+<br>
+<h1>Thank you for registering for %s</h1> <p>We have received your application for verifying this email address. Please click on the link below to accomplish the process.</p>
+<p>Once the registration is done, you will be able to post your comments on courses and interact with other users.</p>
+<a href="{activeURL}">Register Link </a> <br> 
+<p>If the link above isn’t working, in order to verify your account, please copy this URL and paste it on the address bar of your browser:  {activeURL} </p>
+<p>Have fun at CourseBench!</p><br>
+<p>If you need any help, please don’t hesitate to contact us.</p>
+<p>Email: zhaoqch1@shanghaitech.edu.cn </p>
+<p>If you are not registering for CourseBench, please ignore this email.</p><br>
+<p>Yours,</p>
+<p>%s Team</p>
+
+
+
+ </body></html>`, config.Text.ServiceName, config.Text.ServiceName, config.Text.ServiceNameEN, config.Text.ServiceNameEN)
 	err = mail.PostMail(u, "register_mail_code", config.Text.ServiceName+"用户注册验证", "active", body)
 	if err != nil {
 		return err
@@ -283,6 +308,9 @@ func CheckEmail(email string) bool {
 		return false
 	}
 	if err := checkmail.ValidateFormat(email); err != nil {
+		return false
+	}
+	if !strings.HasSuffix(email, config.GlobalConf.MailSuffix) {
 		return false
 	}
 	return true

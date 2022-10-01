@@ -38,5 +38,10 @@ func main() {
 		}
 		filePath := args[2]
 		ImportCourse(filePath)
+	case "clear_userdata":
+		if len(args) != 3 || args[2] != "Yes_Confirm" {
+			syslog.Fatalln("Wrong check code")
+		}
+		ClearUserdata()
 	}
 }
