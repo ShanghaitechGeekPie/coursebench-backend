@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// LogMiddleware record the details of each request.
 func LogMiddleware(c *fiber.Ctx) error {
 	s := "New Request: " + c.String()
 	if len(c.Body()) < 500 {
