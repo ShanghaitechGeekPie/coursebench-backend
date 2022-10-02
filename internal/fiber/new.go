@@ -22,5 +22,6 @@ func New() (app *fiber.App) {
 			})
 		},
 	}))
+	app.Use(LogMiddleware)
 	return app
 }
