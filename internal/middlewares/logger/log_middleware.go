@@ -1,4 +1,4 @@
-package fiber
+package logger
 
 import (
 	"coursebench-backend/pkg/log"

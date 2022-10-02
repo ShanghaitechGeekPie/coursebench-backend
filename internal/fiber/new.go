@@ -1,6 +1,8 @@
 package fiber
 
 import (
+	"coursebench-backend/internal/middlewares/logger"
+	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -9,6 +11,7 @@ import (
 )
 
 func New() (app *fiber.App) {
+	session.Init()
 	app = fiber.New(getFiberConfig())
 	app.Get("/metrics_monitor", monitor.New())
 	app.Use(limiter.New(limiter.Config{
@@ -22,6 +25,6 @@ func New() (app *fiber.App) {
 			})
 		},
 	}))
-	app.Use(LogMiddleware)
+	app.Use(logger.LogMiddleware)
 	return app
 }
