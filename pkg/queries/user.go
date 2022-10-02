@@ -301,7 +301,7 @@ func CheckGrade(grade models.GradeType) bool {
 }
 
 func CheckEmail(email string) bool {
-	if len(email) > 30 {
+	if len(email) > 100 {
 		return false
 	}
 	if strings.Contains(email, "+") {
