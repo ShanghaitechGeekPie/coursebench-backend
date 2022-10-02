@@ -15,7 +15,7 @@ func New() (app *fiber.App) {
 	app = fiber.New(getFiberConfig())
 	app.Get("/metrics_monitor", monitor.New())
 	app.Use(limiter.New(limiter.Config{
-		Max: 60,
+		Max: 200,
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusTooManyRequests).JSON(models.ErrorResponse{
 				Error:     true,
