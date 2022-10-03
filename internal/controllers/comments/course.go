@@ -35,7 +35,7 @@ func CourseComment(c *fiber.Ctx) (err error) {
 			id, uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid, likeResult)
+	response = GenerateResponse(comments, uid, likeResult, true)
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,

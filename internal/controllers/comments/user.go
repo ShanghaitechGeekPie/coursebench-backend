@@ -44,7 +44,12 @@ type CommentLikeResult struct {
 	IsLike    bool
 }
 
-func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentLikeResult) (response []CommentResponse) {
+// GenerateResponse generates the response for comments.
+// comments: the comments to generate response.
+// uid: the user id of the user who is requesting the comments. If the user is not logged in, set it to 0.
+// likeResult: the user's like status of the comments.
+// showAnonymous: whether to show the anonymous comments. For /comment/user, it should be false.
+func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentLikeResult, showAnonymous bool) (response []CommentResponse) {
 	mp := make(map[uint]bool)
 	for _, v := range likeResult {
 		mp[v.CommentID] = v.IsLike
@@ -98,6 +103,8 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 		if !anonymous || v.User.ID == uid {
 			t, _ := queries.GetProfile(v.UserID, uid)
 			c.User = &t
+		} else if !showAnonymous {
+			continue
 		}
 		for _, t := range v.CourseGroup.Teachers {
 			c.Group.Teachers = append(c.Group.Teachers, struct {
@@ -139,7 +146,7 @@ func UserComment(c *fiber.Ctx) (err error) {
 			id, uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid, likeResult)
+	response = GenerateResponse(comments, uid, likeResult, false)
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,
