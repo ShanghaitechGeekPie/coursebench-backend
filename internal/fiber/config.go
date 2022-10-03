@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	ReadTimeout   time.Duration `mapstructure:"read_timeout"`
-	WriteTimeout  time.Duration `mapstructure:"write_timeout"`
-	IdleTimeout   time.Duration `mapstructure:"idle_timeout"`
-	InDevelopment bool          `mapstructure:"in_development"`
-	Listen        string        `mapstructure:"listen"`
+	ReadTimeout    time.Duration `mapstructure:"read_timeout"`
+	WriteTimeout   time.Duration `mapstructure:"write_timeout"`
+	IdleTimeout    time.Duration `mapstructure:"idle_timeout"`
+	InDevelopment  bool          `mapstructure:"in_development"`
+	Listen         string        `mapstructure:"listen"`
+	UseXForwardFor bool          `mapstructure:"use_x_forward_for"`
 }
 
 var FiberConfig Config
