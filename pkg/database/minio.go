@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"coursebench-backend/pkg/errors"
-	"coursebench-backend/pkg/log"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/spf13/viper"
@@ -62,8 +61,6 @@ func DeleteFile(ctx context.Context, objectName string) error {
 // GetEndpoint returns the endpoint of the MinIO server.
 // It gives on or off-campus nodes based on the user ip.
 func GetEndpoint(ip []string) string {
-	log.Println(ip)
-	log.Println(MinioConf.IP)
 	for _, i := range ip {
 		for _, j := range MinioConf.IP {
 			if i == j {
