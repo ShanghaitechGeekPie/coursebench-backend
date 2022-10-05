@@ -18,7 +18,7 @@
     "bucket": "course-bench",
     "endpoint": "cdn.geekpie.club",
     "endpoint2": "s3.geekpie.club",
-    "ip": ["59.78.171.210"]
+    "ip": ["59.78.171.210","119.78.254.2"]
   },
   "postgres": {
     "host": "127.0.0.1",
