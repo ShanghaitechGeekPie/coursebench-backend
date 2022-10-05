@@ -18,4 +18,5 @@ func UserRoutes(r fiber.Router) {
 	route.Post("/upload_avatar", users.UploadAvatar)
 	route.Post("/reset_password", users.ResetPassword)
 	route.Post("/reset_password_active", users.ResetPasswordActive)
+	route.Get("/my_id", users.MyID)
 }
