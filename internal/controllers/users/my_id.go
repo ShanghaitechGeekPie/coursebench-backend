@@ -19,7 +19,7 @@ func MyID(c *fiber.Ctx) (err error) {
 		}
 	}
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  map[string]interface{}{"user_id": id},
+		Data:  map[string]interface{}{"id": id},
 		Error: false,
 	})
 }
