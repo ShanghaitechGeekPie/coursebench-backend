@@ -276,14 +276,15 @@ func GetUserByID(id uint) (*models.User, error) {
 
 // id: 被查询用户的id
 // uid: 查询用户的id
-func GetProfile(id uint, uid uint) (models.ProfileResponse, error) {
+// ip: 查询用户的ip
+func GetProfile(id uint, uid uint, ip []string) (models.ProfileResponse, error) {
 	user, err := GetUserByID(id)
 	if err != nil {
 		return models.ProfileResponse{}, err
 	}
 	avatar := ""
 	if user.Avatar != "" {
-		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.MinioConf.Endpoint, database.MinioConf.Bucket, user.Avatar)
+		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(ip), database.MinioConf.Bucket, user.Avatar)
 	}
 	if user.IsAnonymous && id != uid {
 		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous}, nil

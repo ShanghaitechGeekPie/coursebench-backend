@@ -25,7 +25,7 @@ func main() {
 	}
 	app := fiber.New()
 	fiber.Routes(app)
-	if err := app.Listen(fiber.FiberConfig.Listen); err != nil {
+	if err := app.Listen(config.FiberConfig.Listen); err != nil {
 		panic(err)
 	}
 }

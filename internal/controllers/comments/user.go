@@ -2,6 +2,7 @@ package comments
 
 import (
 	"coursebench-backend/internal/middlewares/session"
+	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -49,7 +50,7 @@ type CommentLikeResult struct {
 // uid: the user id of the user who is requesting the comments. If the user is not logged in, set it to 0.
 // likeResult: the user's like status of the comments.
 // showAnonymous: whether to show the anonymous comments. For /comment/user, it should be false.
-func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentLikeResult, showAnonymous bool) (response []CommentResponse) {
+func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentLikeResult, showAnonymous bool, ip []string) (response []CommentResponse) {
 	mp := make(map[uint]bool)
 	for _, v := range likeResult {
 		mp[v.CommentID] = v.IsLike
@@ -101,7 +102,7 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
 		if !anonymous || v.User.ID == uid {
-			t, _ := queries.GetProfile(v.UserID, uid)
+			t, _ := queries.GetProfile(v.UserID, uid, ip)
 			c.User = &t
 		} else if !showAnonymous {
 			continue
@@ -146,7 +147,7 @@ func UserComment(c *fiber.Ctx) (err error) {
 			id, uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid, likeResult, false)
+	response = GenerateResponse(comments, uid, likeResult, false, utils.GetIP(c))
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,

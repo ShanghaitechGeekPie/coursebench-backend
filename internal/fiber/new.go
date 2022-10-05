@@ -3,6 +3,7 @@ package fiber
 import (
 	"coursebench-backend/internal/middlewares/logger"
 	"coursebench-backend/internal/middlewares/session"
+	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -16,15 +17,7 @@ func New() (app *fiber.App) {
 	app.Get("/metrics_monitor", monitor.New())
 	app.Use(limiter.New(limiter.Config{
 		KeyGenerator: func(c *fiber.Ctx) string {
-			if FiberConfig.UseXForwardFor {
-				if len(c.IPs()) > 0 {
-					return c.IPs()[0]
-				} else {
-					return c.IP()
-				}
-			} else {
-				return c.IP()
-			}
+			return utils.GetIP(c)[0]
 		},
 		Max: 300,
 		LimitReached: func(c *fiber.Ctx) error {

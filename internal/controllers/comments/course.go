@@ -2,6 +2,7 @@ package comments
 
 import (
 	"coursebench-backend/internal/middlewares/session"
+	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -35,7 +36,7 @@ func CourseComment(c *fiber.Ctx) (err error) {
 			id, uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
-	response = GenerateResponse(comments, uid, likeResult, true)
+	response = GenerateResponse(comments, uid, likeResult, true, utils.GetIP(c))
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,

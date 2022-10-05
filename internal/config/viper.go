@@ -44,4 +44,6 @@ func SetupViper() {
 	if err != nil {
 		syslog.Fatalf("Fatal error text config file: %v \n", err)
 	}
+
+	SetupFiberConfig()
 }
