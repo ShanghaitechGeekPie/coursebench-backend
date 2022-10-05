@@ -3,6 +3,7 @@ package users
 import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/middlewares/session"
+	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -53,5 +54,9 @@ func UploadAvatar(c *fiber.Ctx) (err error) {
 			syslog.Println(err)
 		}
 	}
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{Data: map[string]string{"avatar": nameUUID.String()}, Error: false})
+	profile, err := queries.GetProfile(id, id, utils.GetIP(c))
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusOK).JSON(models.OKResponse{Data: map[string]string{"avatar": profile.Avatar}, Error: false})
 }
