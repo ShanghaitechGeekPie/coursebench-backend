@@ -43,7 +43,7 @@
   "fiber": {
     "listen": "127.0.0.1:10001",
     "reverse_proxy_depth": 1,
-    "use_x_forwarded_for": true
+    "use_x_forward_for": true
   },
   "log": {
     "log_file": "coursebench.log"

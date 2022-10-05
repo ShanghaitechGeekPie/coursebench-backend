@@ -64,7 +64,7 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 				likeStatus = 2
 			}
 		}
-		anonymous := v.IsAnonymous || v.User.IsAnonymous
+		anonymous := v.IsAnonymous
 		c := CommentResponse{
 			ID:          v.ID,
 			Title:       v.Title,
