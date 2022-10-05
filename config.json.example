@@ -16,7 +16,9 @@
     "username": "course-bench",
     "password": "123456",
     "bucket": "course-bench",
-    "endpoint": "cdn.geekpie.club"
+    "endpoint": "cdn.geekpie.club",
+    "endpoint2": "s3.geekpie.club",
+    "ip": ["59.78.171.210"]
   },
   "postgres": {
     "host": "127.0.0.1",
