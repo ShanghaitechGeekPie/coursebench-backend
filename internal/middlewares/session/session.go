@@ -42,7 +42,7 @@ func (r *RedisStore) Set(key string, value []byte, ttl time.Duration) error {
 
 func Init() {
 	redis := database.GetSessionRedis()
-	store = session.New(session.Config{Expiration: time.Hour * 24 * 7, CookieHTTPOnly: true, CookieSecure: true, Storage: &RedisStore{db: redis}})
+	store = session.New(session.Config{Expiration: time.Hour * 24 * 30, CookieHTTPOnly: true, CookieSecure: true, Storage: &RedisStore{db: redis}})
 }
 
 func GetStore() *session.Store {
