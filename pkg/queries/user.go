@@ -343,7 +343,7 @@ func CheckNickName(nickname string) bool {
 }
 
 func CheckRealName(realname string) bool {
-	if len(realname) > 20 {
+	if len(realname) > 30 {
 		return false
 	}
 	r := []rune(realname)
