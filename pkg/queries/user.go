@@ -330,7 +330,7 @@ func CheckPassword(password string) bool {
 }
 
 func CheckNickName(nickname string) bool {
-	if len(nickname) > 20 {
+	if len(nickname) > 30 {
 		return false
 	}
 	r := []rune(nickname)
