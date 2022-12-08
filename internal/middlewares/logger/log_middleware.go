@@ -3,7 +3,7 @@ package logger
 import (
 	"coursebench-backend/pkg/log"
 	"fmt"
-	"internal/middlewares/logger/log_middleware.go"
+	"github.com/gofiber/fiber/v2"
 	"strings"
 )
 
