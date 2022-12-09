@@ -13,7 +13,7 @@ git clone git@github.com:ShanghaitechGeekPie/coursebench-backend.git
 cd coursebench-backend
 mkdir bin
 go build -o bin/coursebench-backend ./cmd/coursebench-backend/main.go
-go build -o bin/cmd_tools ./cmd/cmd_tools/main.go
+go build -o bin/cmd_tools ./cmd/cmd_tools/
 ```
 
 ## Configure
