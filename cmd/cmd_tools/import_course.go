@@ -45,7 +45,9 @@ func ImportCourse(filePath string) {
 		if err != nil {
 			panic(err)
 		}
-		records, err := csv.NewReader(csvFile).ReadAll()
+		reader := csv.NewReader(csvFile)
+		reader.LazyQuotes = true
+		records, err := reader.ReadAll()
 		if err != nil {
 			panic(err)
 		}
