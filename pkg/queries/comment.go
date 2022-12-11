@@ -15,7 +15,7 @@ func CheckCommentTitle(title string) bool {
 
 func CheckCommentContent(content string) bool {
 	length := len(content)
-	if length == 0 || length > 20000 {
+	if length == 0 || length > 50000 {
 		return false
 	}
 	return true
