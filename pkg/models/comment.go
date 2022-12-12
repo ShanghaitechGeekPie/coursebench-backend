@@ -23,10 +23,9 @@ type Comment struct {
 	IsAnonymous         bool
 	CreateTime          int
 	UpdateTime          int
-	//Likes               []*User `gorm:"many2many:comment_likes;"`
-	//Dislikes            []*User `gorm:"many2many:comment_dislikes;"`
-	Like    int
-	Dislike int
+	Like                int
+	Dislike             int
+	IsFold              bool `gorm:"default:false"`
 }
 
 type CommentLike struct {
