@@ -83,6 +83,7 @@ func Post(c *fiber.Ctx) (err error) {
 		Scores:              request.Scores,
 		Like:                0,
 		Dislike:             0,
+		IsFold:              false,
 	}
 
 	// 插入评论作为一个事务，若插入失败则回滚
