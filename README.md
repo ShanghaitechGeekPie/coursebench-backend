@@ -1,6 +1,6 @@
 # coursebench-backend
 
-course-bench 的后端服务
+GeekPie_CourseBench 的后端服务
 
 ## Build
 
@@ -12,7 +12,7 @@ course-bench 的后端服务
 git clone git@github.com:ShanghaitechGeekPie/coursebench-backend.git
 cd coursebench-backend
 mkdir bin
-go build -o bin/coursebench-backend ./cmd/coursebench-backend/main.go
+go build -o bin/coursebench-backend ./cmd/coursebench-backend/
 go build -o bin/cmd_tools ./cmd/cmd_tools/
 ```
 
@@ -36,7 +36,7 @@ bin/cmd_tools import_course <course data path>
 
 ```shell
 cd build
-sudo docker-compose up -d
+docker-compose up -d
 cd ..
 ./bin/coursebench-backend
 ```
