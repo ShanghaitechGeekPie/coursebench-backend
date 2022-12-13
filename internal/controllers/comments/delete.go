@@ -5,6 +5,7 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
+	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,11 @@ func Delete(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	user, err := queries.GetUserByID(uid)
+	if err != nil {
+		return err
+	}
+
 	db := database.GetDB()
 	comment := &models.Comment{}
 	err = db.Preload("CourseGroup").Preload("CourseGroup.Course").Where("id = ?", request.ID).Take(comment).Error
@@ -37,7 +43,7 @@ func Delete(c *fiber.Ctx) (err error) {
 		}
 	}
 
-	if uid != comment.UserID {
+	if !user.IsAdmin && uid != comment.UserID { // admin can delete any comment.
 		return errors.New(errors.PermissionDenied)
 	}
 
