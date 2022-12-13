@@ -29,7 +29,7 @@ Edit files in `build` directory as you like.
 ## Import data (optional)
 
 ```shell
-./bin/import_course
+bin/cmd_tools import_course <course data path>
 ```
 
 ## Run
