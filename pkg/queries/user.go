@@ -288,9 +288,9 @@ func GetProfile(id uint, uid uint, ip []string) (models.ProfileResponse, error) 
 		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(ip), database.MinioConf.Bucket, user.Avatar)
 	}
 	if user.IsAnonymous && id != uid {
-		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous}, nil
+		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin}, nil
 	} else {
-		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar}, nil
+		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin}, nil
 	}
 }
 

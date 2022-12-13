@@ -41,4 +41,5 @@ type ProfileResponse struct {
 	RealName    string    `json:"realname"`
 	Avatar      string    `json:"avatar"`
 	IsAnonymous bool      `json:"is_anonymous"`
+	IsAdmin     bool      `json:"is_admin"`
 }
