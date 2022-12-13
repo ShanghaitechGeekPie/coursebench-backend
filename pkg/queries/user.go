@@ -109,6 +109,7 @@ func Register(u *models.User) error {
 	}
 	u.Password = string(hash)
 	u.IsActive = false
+	u.IsAdmin = false
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)

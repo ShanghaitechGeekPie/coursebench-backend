@@ -14,8 +14,6 @@ const (
 	PhDStudent    GradeType = 3
 )
 
-const DefaultAvatarURL = "https://mirrors.tuna.tsinghua.edu.cn/static/img/favicon.png"
-
 type User struct {
 	gorm.Model
 	Email       string `gorm:"index"`
@@ -27,8 +25,7 @@ type User struct {
 	IsActive    bool
 	Avatar      string
 	IsAnonymous bool
-	//LikeComments    []*Comment `gorm:"many2many:comment_likes;"`
-	//DislikeComments []*Comment `gorm:"many2many:comment_dislikes;"`
+	IsAdmin     bool `gorm:"default:false"`
 }
 
 func init() {
