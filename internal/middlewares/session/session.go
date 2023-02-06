@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"github.com/go-redis/redis/v8"
@@ -42,7 +43,7 @@ func (r *RedisStore) Set(key string, value []byte, ttl time.Duration) error {
 
 func Init() {
 	redis := database.GetSessionRedis()
-	store = session.New(session.Config{Expiration: time.Hour * 24 * 30, CookieHTTPOnly: true, CookieSecure: true, Storage: &RedisStore{db: redis}})
+	store = session.New(session.Config{Expiration: time.Hour * 24 * 30, CookieHTTPOnly: !config.GlobalConf.InDevelopment, CookieSecure: !config.GlobalConf.InDevelopment, Storage: &RedisStore{db: redis}})
 }
 
 func GetStore() *session.Store {
