@@ -21,8 +21,9 @@ func main() {
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
+	database.Migrate()
 	app := fiber.New()
 	fiber.Routes(app)
 	if err := app.Listen(config.FiberConfig.Listen); err != nil {
