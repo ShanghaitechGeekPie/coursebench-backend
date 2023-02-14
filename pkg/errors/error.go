@@ -66,6 +66,13 @@ func New(description *description) error {
 	}
 }
 
+// NewMessage 直接根据 message 创建一个 error
+// 不记录栈信息，不包含错误类型信息
+// 不得用于web请求返回错误
+func NewMessage(message string) error {
+	return errors.New(message)
+}
+
 // Wrap 传入一个err, 返回一个通过ErrorDescription包装的Error
 // Wrap 也会记录堆栈信息
 // err 原始error
