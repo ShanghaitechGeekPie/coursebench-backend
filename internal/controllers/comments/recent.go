@@ -24,7 +24,7 @@ func RecentComment(c *fiber.Ctx) (err error) {
 	}
 	var likeResult []CommentLikeResult
 	if uid != 0 {
-		db.Raw("SELECT comment_likes.comment_id, comment_likes.is_like from comments, comment_likes order by create_time desc 30 where comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL",
+		db.Raw("SELECT comment_likes.comment_id, comment_likes.is_like from comments, comment_likes  where comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL order by create_time desc LIMIT 30",
 			uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
