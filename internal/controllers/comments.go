@@ -13,6 +13,7 @@ func CommentRoutes(r fiber.Router) {
 	route.Get("/user/:id", comments.UserComment)
 	route.Get("/course_group/:id", comments.CourseGroupComment)
 	route.Get("/course/:id", comments.CourseComment)
+	route.Get("/recent", comments.RecentComment)
 	route.Post("/like", comments.Like)
 	route.Post("/fold", comments.Fold)
 }
