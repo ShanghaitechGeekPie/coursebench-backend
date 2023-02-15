@@ -16,6 +16,15 @@ go build -o bin/coursebench-backend ./cmd/coursebench-backend/
 go build -o bin/cmd_tools ./cmd/cmd_tools/
 ```
 
+If you are using Windows, then the two `build` instruction should be
+
+```shell
+go build -o bin/coursebench-backend.exe ./cmd/coursebench-backend/
+go build -o bin/cmd_tools.exe ./cmd/cmd_tools/
+```
+
+
+
 ## Configure
 
 ```shell
@@ -40,3 +49,10 @@ docker-compose up -d
 cd ..
 ./bin/coursebench-backend
 ```
+
+If you are using Windows, the last instruction should be
+
+```shell
+./bin/coursebench-backend.exe
+```
+
