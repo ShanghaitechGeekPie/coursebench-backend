@@ -21,7 +21,7 @@ func Profile(c *fiber.Ctx) error {
 	if err != nil && !errors.Is(err, errors.UserNotLogin) {
 		return err
 	}
-	response, err := queries.GetProfile(id, uid, utils.GetIP(c))
+	response, err := queries.GetProfile(nil, id, uid, utils.GetIP(c))
 	if err != nil {
 		return err
 	}

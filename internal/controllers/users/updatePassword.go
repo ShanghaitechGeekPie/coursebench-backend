@@ -32,7 +32,7 @@ func UpdatePassword(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	err = queries.UpdatePassword(id, request.OldPassword, request.NewPassword)
+	err = queries.UpdatePassword(nil, id, request.OldPassword, request.NewPassword)
 	if err != nil {
 		return err
 	}

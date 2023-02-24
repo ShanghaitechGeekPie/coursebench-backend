@@ -26,7 +26,7 @@ func Delete(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	user, err := queries.GetUserByID(uid)
+	user, err := queries.GetUserByID(nil, uid)
 	if err != nil {
 		return err
 	}

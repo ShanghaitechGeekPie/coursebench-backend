@@ -8,8 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func AddCourse(name string, institute string, credit int, code string) (course *models.Course, err error) {
-	db := database.GetDB()
+func AddCourse(db *gorm.DB, name string, institute string, credit int, code string) (course *models.Course, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 	/*
 		scores64 := make([]int64, len(scores))
 		for i, v := range scores {
@@ -30,11 +32,13 @@ func AddCourse(name string, institute string, credit int, code string) (course *
 	return
 }
 
-func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *models.CourseGroup, err error) {
-	db := database.GetDB()
+func AddCourseGroup(db *gorm.DB, code string, courseID int, teachers []int) (courseGroup *models.CourseGroup, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 	teachersT := make([]*models.Teacher, len(teachers))
 	for i, v := range teachers {
-		teachersT[i], err = GetTeacher(uint(v))
+		teachersT[i], err = GetTeacher(db, uint(v))
 		if err != nil {
 			return nil, err
 		}
@@ -84,8 +88,10 @@ func AddCourseGroup(code string, courseID int, teachers []int) (courseGroup *mod
 	}
 	return
 }
-func GetAllCourse() (courses []*models.Course, err error) {
-	db := database.GetDB()
+func GetAllCourse(db *gorm.DB) (courses []*models.Course, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 	result := db.Find(&courses)
 	if result.Error != nil {
 		return nil, errors.Wrap(result.Error, errors.DatabaseError)
@@ -93,8 +99,11 @@ func GetAllCourse() (courses []*models.Course, err error) {
 	return
 }
 
-func AllCourseRequest() (Courses []models.CourseAllResponse, err error) {
-	c, err := GetAllCourse()
+func AllCourseRequest(db *gorm.DB) (Courses []models.CourseAllResponse, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+	c, err := GetAllCourse(db)
 	if err != nil {
 		return nil, err
 	}

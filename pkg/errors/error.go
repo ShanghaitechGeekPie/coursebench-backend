@@ -124,6 +124,10 @@ func (err *userErrorImpl) Time() time.Time {
 	return err.time
 }
 
+func (err *userErrorImpl) Error() string {
+	return fmt.Sprintf("%s, %v, %s, %s", err.name, err.Time(), err.message, err.Stacktrace())
+}
+
 func Is(err error, target error) bool {
 	if err, ok := err.(*userErrorImpl); ok {
 		return errors.Is(err.description, target)

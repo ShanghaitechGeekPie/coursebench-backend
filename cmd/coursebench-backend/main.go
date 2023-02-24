@@ -4,6 +4,7 @@ import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/fiber"
 	"coursebench-backend/pkg/database"
+	"coursebench-backend/pkg/database/upgrade"
 	"coursebench-backend/pkg/log"
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/modelRegister"
@@ -23,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	database.Migrate()
+	upgrade.UpgradeDB()
 	app := fiber.New()
 	fiber.Routes(app)
 	if err := app.Listen(config.FiberConfig.Listen); err != nil {

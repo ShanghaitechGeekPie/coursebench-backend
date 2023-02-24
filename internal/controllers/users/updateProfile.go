@@ -26,7 +26,7 @@ func UpdateProfile(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	err = queries.UpdateProfile(id, request.Year, request.Grade, request.NickName, request.RealName, request.IsAnonymous)
+	err = queries.UpdateProfile(nil, id, request.Year, request.Grade, request.NickName, request.RealName, request.IsAnonymous)
 	if err != nil {
 		return err
 	}

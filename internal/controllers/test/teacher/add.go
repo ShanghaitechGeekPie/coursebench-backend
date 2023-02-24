@@ -21,7 +21,7 @@ func Add(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 
-	teacher, err := queries.AddTeacher(request.Name, request.Job, request.Introduction, request.EamsID)
+	teacher, err := queries.AddTeacher(nil, request.Name, request.Job, request.Introduction, request.EamsID)
 	if err != nil {
 		return err
 	}

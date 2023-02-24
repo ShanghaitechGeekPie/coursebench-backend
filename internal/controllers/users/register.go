@@ -38,11 +38,11 @@ func Register(c *fiber.Ctx) (err error) {
 		Avatar:      "",
 		IsAnonymous: false,
 	}
-	if err = queries.Register(&user); err != nil {
+	if err = queries.Register(nil, &user); err != nil {
 		return
 	}
 	if config.GlobalConf.DisableMail {
-		err = queries.RegisterActive(user.ID, "")
+		err = queries.RegisterActive(nil, user.ID, "")
 		if err != nil {
 			return err
 		}

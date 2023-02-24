@@ -20,7 +20,7 @@ func Add(c *fiber.Ctx) (err error) {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
 
-	courseGroup, err := queries.AddCourseGroup(request.Code, request.Course, request.Teachers)
+	courseGroup, err := queries.AddCourseGroup(nil, request.Code, request.Course, request.Teachers)
 	if err != nil {
 		return err
 	}

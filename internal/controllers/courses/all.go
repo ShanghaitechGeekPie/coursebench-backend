@@ -8,7 +8,7 @@ import (
 
 func All(c *fiber.Ctx) error {
 	var response []models.CourseAllResponse
-	response, err := queries.AllCourseRequest()
+	response, err := queries.AllCourseRequest(nil)
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ func Login(c *fiber.Ctx) (err error) {
 		}
 	}
 
-	user, err := queries.Login(request.Email, request.Password)
+	user, err := queries.Login(nil, request.Email, request.Password)
 	if err != nil {
 		return
 	}
@@ -46,7 +46,7 @@ func Login(c *fiber.Ctx) (err error) {
 		return
 	}*/
 
-	response, err := queries.GetProfile(user.ID, user.ID, utils.GetIP(c))
+	response, err := queries.GetProfile(nil, user.ID, user.ID, utils.GetIP(c))
 	if err != nil {
 		return
 	}

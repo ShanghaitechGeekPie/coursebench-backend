@@ -19,7 +19,7 @@ func ResetPasswordActive(c *fiber.Ctx) (err error) {
 	if err = c.BodyParser(&activeReq); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
 	}
-	err = queries.ResetPasswordActive(activeReq.ID, activeReq.Code, activeReq.Password)
+	err = queries.ResetPasswordActive(nil, activeReq.ID, activeReq.Code, activeReq.Password)
 	if err != nil {
 		return
 	}

@@ -25,7 +25,7 @@ func ResetPassword(c *fiber.Ctx) (err error) {
 		}
 	}
 
-	if err = queries.ResetPassword(userReq.Email); err != nil {
+	if err = queries.ResetPassword(nil, userReq.Email); err != nil {
 		return
 	}
 

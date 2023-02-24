@@ -5,6 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const TEACHER_OTHER_ID = 100000001
+
 type Teacher struct {
 	gorm.Model
 	EamsID       int

@@ -14,7 +14,7 @@ func MyProfile(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	user, err := queries.GetUserByID(id)
+	user, err := queries.GetUserByID(nil, id)
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  map[string]interface{}{"UserID": id, "User": user},
 		Error: false,

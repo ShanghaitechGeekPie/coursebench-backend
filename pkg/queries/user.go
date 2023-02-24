@@ -15,11 +15,13 @@ import (
 	"unicode"
 )
 
-func ResetPassword(email string) error {
+func ResetPassword(db *gorm.DB, email string) error {
+	if db == nil {
+		db = database.GetDB()
+	}
 	if !CheckEmail(email) {
 		return errors.New(errors.InvalidArgument)
 	}
-	db := database.GetDB()
 	user := models.User{}
 	if err := db.Where("email = ?", email).Take(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -34,11 +36,13 @@ func ResetPassword(email string) error {
 	return mail.PostMail(&user, "reset_password_mail_code", config.Text.ServiceName+"用户密码重置", "reset_password_active", body)
 }
 
-func ResetPasswordActive(id uint, code string, password string) (err error) {
+func ResetPasswordActive(db *gorm.DB, id uint, code string, password string) (err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 	if !CheckPassword(password) {
 		return errors.New(errors.InvalidArgument)
 	}
-	db := database.GetDB()
 	user := &models.User{}
 	result := db.Where("id = ?", id).Take(user)
 	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -67,8 +71,10 @@ func ResetPasswordActive(id uint, code string, password string) (err error) {
 	return nil
 }
 
-func Register(u *models.User) error {
-	db := database.GetDB()
+func Register(db *gorm.DB, u *models.User) error {
+	if db == nil {
+		db = database.GetDB()
+	}
 
 	// 检查输入合法
 	if !CheckPassword(u.Password) {
@@ -148,8 +154,10 @@ func Register(u *models.User) error {
 	return nil
 }
 
-func RegisterActive(id uint, code string) (err error) {
-	db := database.GetDB()
+func RegisterActive(db *gorm.DB, id uint, code string) (err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 	user := &models.User{}
 	// 检查邮箱是否已存在
 	result := db.Where("id = ?", id).Take(user)
@@ -171,8 +179,10 @@ func RegisterActive(id uint, code string) (err error) {
 	return nil
 }
 
-func Login(email, password string) (*models.User, error) {
-	db := database.GetDB()
+func Login(db *gorm.DB, email, password string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 
 	// 检查输入合法
 	if !CheckEmail(email) {
@@ -203,9 +213,11 @@ func Login(email, password string) (*models.User, error) {
 	return user, nil
 }
 
-func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, realname string, isAnonymous bool) (err error) {
-	db := database.GetDB()
-	user, err := GetUserByID(id)
+func UpdateProfile(db *gorm.DB, id uint, year int, grade models.GradeType, nickname string, realname string, isAnonymous bool) (err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+	user, err := GetUserByID(db, id)
 	if err != nil {
 		return err
 	}
@@ -233,9 +245,11 @@ func UpdateProfile(id uint, year int, grade models.GradeType, nickname string, r
 	return
 }
 
-func UpdatePassword(id uint, oldPassword string, newPassword string) (err error) {
-	db := database.GetDB()
-	user, err := GetUserByID(id)
+func UpdatePassword(db *gorm.DB, id uint, oldPassword string, newPassword string) (err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+	user, err := GetUserByID(db, id)
 	if err != nil {
 		return err
 	}
@@ -260,8 +274,10 @@ func UpdatePassword(id uint, oldPassword string, newPassword string) (err error)
 	return
 }
 
-func GetUserByID(id uint) (*models.User, error) {
-	db := database.GetDB()
+func GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 
 	user := &models.User{}
 	result := db.Where("id = ?", id).Take(user)
@@ -278,8 +294,11 @@ func GetUserByID(id uint) (*models.User, error) {
 // id: 被查询用户的id
 // uid: 查询用户的id
 // ip: 查询用户的ip
-func GetProfile(id uint, uid uint, ip []string) (models.ProfileResponse, error) {
-	user, err := GetUserByID(id)
+func GetProfile(db *gorm.DB, id uint, uid uint, ip []string) (models.ProfileResponse, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+	user, err := GetUserByID(db, id)
 	if err != nil {
 		return models.ProfileResponse{}, err
 	}

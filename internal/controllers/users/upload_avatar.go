@@ -29,7 +29,7 @@ func UploadAvatar(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
-	user, err := queries.GetUserByID(id)
+	user, err := queries.GetUserByID(nil, id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func UploadAvatar(c *fiber.Ctx) (err error) {
 			syslog.Println(err)
 		}
 	}
-	profile, err := queries.GetProfile(id, id, utils.GetIP(c))
+	profile, err := queries.GetProfile(nil, id, id, utils.GetIP(c))
 	if err != nil {
 		return err
 	}

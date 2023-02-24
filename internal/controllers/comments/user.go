@@ -104,7 +104,7 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
 		if !anonymous || v.User.ID == uid {
-			t, _ := queries.GetProfile(v.UserID, uid, ip)
+			t, _ := queries.GetProfile(nil, v.UserID, uid, ip)
 			c.User = &t
 		} else if !showAnonymous {
 			continue

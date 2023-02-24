@@ -7,8 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetTeacher(id uint) (teacher *models.Teacher, err error) {
-	db := database.GetDB()
+func GetTeacher(db *gorm.DB, id uint) (teacher *models.Teacher, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 
 	teacher = &models.Teacher{}
 	result := db.Where("id = ?", id).Take(teacher)
@@ -22,8 +24,10 @@ func GetTeacher(id uint) (teacher *models.Teacher, err error) {
 	return teacher, nil
 }
 
-func AddTeacher(name string, job string, introduction string, EamsID int) (teacher *models.Teacher, err error) {
-	db := database.GetDB()
+func AddTeacher(db *gorm.DB, name string, job string, introduction string, EamsID int) (teacher *models.Teacher, err error) {
+	if db == nil {
+		db = database.GetDB()
+	}
 
 	teacher = &models.Teacher{
 		Name:         name,
