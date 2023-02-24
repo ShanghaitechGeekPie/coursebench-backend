@@ -18,6 +18,7 @@ func UpgradeDB() {
 	if err != nil {
 		// 初次创建数据库
 		metadata = models.Metadata{DBVersion: CurrentDBVersion}
+		DatabaseInit()
 	}
 	// 依次更新 DB Version
 	// fallthrough 为数不多的用途
@@ -41,6 +42,25 @@ func UpgradeDB() {
 	}
 }
 
+func DatabaseInit() {
+	db := database.GetDB()
+	// 创建占位教师“其他”
+	err := db.Transaction(func(tx *gorm.DB) error {
+		teacher := &models.Teacher{
+			Model:  gorm.Model{ID: models.TEACHER_OTHER_ID},
+			Name:   "其他",
+			EamsID: -1,
+		}
+		if err := tx.Create(teacher).Error; err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
 func UpgradeDBFrom2To3() {
 	db := database.GetDB()
 	// 创建占位教师“其他”，并为所有课程创建一个“其他”授课组
@@ -53,7 +73,6 @@ func UpgradeDBFrom2To3() {
 		if err := tx.Create(teacher).Error; err != nil {
 			return errors.Wrap(err, errors.DatabaseError)
 		}
-		//teachers := []int{models.TEACHER_OTHER_ID}
 		teachers := []int{models.TEACHER_OTHER_ID}
 		var courses []models.Course
 		if err := tx.Find(&courses).Error; err != nil {
