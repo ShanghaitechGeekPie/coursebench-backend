@@ -70,6 +70,7 @@ func ImportCourse(filePath string) {
 					panic(err)
 				}
 				if err != nil {
+					syslog.Printf("Add course %s %s %s %d\n", code, name, institute, credit)
 					course, err = queries.AddCourse(tx, name, institute, credit, code)
 					if err != nil {
 						panic(err)
