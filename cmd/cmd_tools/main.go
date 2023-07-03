@@ -43,5 +43,7 @@ func main() {
 			syslog.Fatalln("Wrong check code")
 		}
 		ClearUserdata()
+	default:
+		syslog.Fatal("Unknown command!")
 	}
 }
