@@ -294,7 +294,7 @@ func GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
 // id: 被查询用户的id
 // uid: 查询用户的id
 // ip: 查询用户的ip
-func GetProfile(db *gorm.DB, id uint, uid uint, ip []string) (models.ProfileResponse, error) {
+func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) {
 	if db == nil {
 		db = database.GetDB()
 	}
@@ -304,7 +304,7 @@ func GetProfile(db *gorm.DB, id uint, uid uint, ip []string) (models.ProfileResp
 	}
 	avatar := ""
 	if user.Avatar != "" {
-		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(ip), database.MinioConf.Bucket, user.Avatar)
+		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(), database.MinioConf.Bucket, user.Avatar)
 	}
 	if user.IsAnonymous && id != uid {
 		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin}, nil

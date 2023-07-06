@@ -11,12 +11,10 @@ import (
 )
 
 type MinioConfig struct {
-	Endpoint  string   `mapstructure:"endpoint"`
-	Username  string   `mapstructure:"username"`
-	Password  string   `mapstructure:"password"`
-	Bucket    string   `mapstructure:"bucket"`
-	Endpoint2 string   `mapstructure:"endpoint2"`
-	IP        []string `mapstructure:"ip"`
+	Endpoint string `mapstructure:"endpoint"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Bucket   string `mapstructure:"bucket"`
 }
 
 var MinioConf MinioConfig
@@ -60,13 +58,6 @@ func DeleteFile(ctx context.Context, objectName string) error {
 
 // GetEndpoint returns the endpoint of the MinIO server.
 // It gives on or off-campus nodes based on the user ip.
-func GetEndpoint(ip []string) string {
-	for _, i := range ip {
-		for _, j := range MinioConf.IP {
-			if i == j {
-				return MinioConf.Endpoint
-			}
-		}
-	}
-	return MinioConf.Endpoint2
+func GetEndpoint() string {
+	return MinioConf.Endpoint
 }

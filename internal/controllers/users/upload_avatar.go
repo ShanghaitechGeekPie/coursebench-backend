@@ -3,7 +3,6 @@ package users
 import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/middlewares/session"
-	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
@@ -54,7 +53,7 @@ func UploadAvatar(c *fiber.Ctx) (err error) {
 			syslog.Println(err)
 		}
 	}
-	profile, err := queries.GetProfile(nil, id, id, utils.GetIP(c))
+	profile, err := queries.GetProfile(nil, id, id)
 	if err != nil {
 		return err
 	}

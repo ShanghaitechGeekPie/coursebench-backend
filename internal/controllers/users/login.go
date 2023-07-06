@@ -3,7 +3,6 @@ package users
 import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/middlewares/session"
-	"coursebench-backend/internal/utils"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
@@ -46,7 +45,7 @@ func Login(c *fiber.Ctx) (err error) {
 		return
 	}*/
 
-	response, err := queries.GetProfile(nil, user.ID, user.ID, utils.GetIP(c))
+	response, err := queries.GetProfile(nil, user.ID, user.ID)
 	if err != nil {
 		return
 	}
