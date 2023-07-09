@@ -59,7 +59,11 @@ func Cover(c *fiber.Ctx) (err error) {
 			}
 		}
 		if request.Status { // cover
-			response, err := http.Post(config.GlobalConf.GPTWorkerURL, "application/json", bytes.NewBuffer([]byte(`{"title": "`+comment.Title+`", "content": "`+comment.Content+`"}`)))
+			requestBody, err := json.Marshal(map[string]string{"title": comment.Title, "content": comment.Content})
+			if err != nil {
+				return errors.Wrap(err, errors.InternalServerError)
+			}
+			response, err := http.Post(config.GlobalConf.GPTWorkerURL, "application/json", bytes.NewBuffer(requestBody))
 			if err != nil {
 				return errors.New(errors.GPTWorkerError)
 			}
