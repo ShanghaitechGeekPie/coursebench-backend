@@ -88,7 +88,7 @@ func Cover(c *fiber.Ctx) (err error) {
 			comment.IsCovered = false
 		}
 
-		err = tx.Select("IsCovered", "CoverTitle", "CoverContent").Save(comment).Error
+		err = tx.Select("IsCovered", "CoverTitle", "CoverContent", "CoverReason").Save(comment).Error
 		if err != nil {
 			return errors.Wrap(err, errors.DatabaseError)
 		}
