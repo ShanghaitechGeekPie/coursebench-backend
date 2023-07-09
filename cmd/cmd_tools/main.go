@@ -45,7 +45,7 @@ func main() {
 		}
 		ClearUserdata()
 	case "set_admin":
-		if len(args) != 2 {
+		if len(args) < 3 {
 			syslog.Fatalln("Missing parameters <user id>")
 		}
 		userId, err := strconv.Atoi(args[2])
@@ -54,7 +54,7 @@ func main() {
 		}
 		SetAdmin(userId, true)
 	case "unset_admin":
-		if len(args) != 2 {
+		if len(args) < 3 {
 			syslog.Fatalln("Missing parameters <user id>")
 		}
 		userId, err := strconv.Atoi(args[2])
@@ -63,7 +63,7 @@ func main() {
 		}
 		SetAdmin(userId, false)
 	case "set_community_admin":
-		if len(args) != 2 {
+		if len(args) < 3 {
 			syslog.Fatalln("Missing parameters <user id>")
 		}
 		userId, err := strconv.Atoi(args[2])
@@ -72,7 +72,7 @@ func main() {
 		}
 		SetCommunityAdmin(userId, true)
 	case "unset_community_admin":
-		if len(args) != 2 {
+		if len(args) < 3 {
 			syslog.Fatalln("Missing parameters <user id>")
 		}
 		userId, err := strconv.Atoi(args[2])
