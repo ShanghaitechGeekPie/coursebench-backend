@@ -38,7 +38,11 @@ type CommentResponse struct {
 			Name string `json:"name"`
 		} `json:"teachers"`
 	} `json:"group"`
-	IsFold bool `json:"is_fold"`
+	IsFold       bool   `json:"is_fold"`
+	IsCovered    bool   `json:"is_covered"`
+	CoverTitle   string `json:"cover_title"`
+	CoverContent string `json:"cover_content"`
+	CoverReason  string `json:"cover_reason"`
 }
 
 type CommentLikeResult struct {
@@ -100,7 +104,11 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 				ID:   v.CourseGroup.ID,
 				Code: v.CourseGroup.Code,
 			},
-			IsFold: v.IsFold,
+			IsFold:       v.IsFold,
+			IsCovered:    v.IsCovered,
+			CoverTitle:   v.CoverTitle,
+			CoverContent: v.CoverContent,
+			CoverReason:  v.CoverReason,
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
 		if !anonymous || v.User.ID == uid {
