@@ -7,6 +7,7 @@ import (
 	"coursebench-backend/pkg/modelRegister"
 	syslog "log"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -43,6 +44,42 @@ func main() {
 			syslog.Fatalln("Wrong check code")
 		}
 		ClearUserdata()
+	case "set_admin":
+		if len(args) != 2 {
+			syslog.Fatalln("Missing parameters <user id>")
+		}
+		userId, err := strconv.Atoi(args[2])
+		if err != nil {
+			syslog.Fatalln(err)
+		}
+		SetAdmin(userId, true)
+	case "unset_admin":
+		if len(args) != 2 {
+			syslog.Fatalln("Missing parameters <user id>")
+		}
+		userId, err := strconv.Atoi(args[2])
+		if err != nil {
+			syslog.Fatalln(err)
+		}
+		SetAdmin(userId, false)
+	case "set_community_admin":
+		if len(args) != 2 {
+			syslog.Fatalln("Missing parameters <user id>")
+		}
+		userId, err := strconv.Atoi(args[2])
+		if err != nil {
+			syslog.Fatalln(err)
+		}
+		SetCommunityAdmin(userId, true)
+	case "unset_community_admin":
+		if len(args) != 2 {
+			syslog.Fatalln("Missing parameters <user id>")
+		}
+		userId, err := strconv.Atoi(args[2])
+		if err != nil {
+			syslog.Fatalln(err)
+		}
+		SetCommunityAdmin(userId, false)
 	default:
 		syslog.Fatal("Unknown command!")
 	}

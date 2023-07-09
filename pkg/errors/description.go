@@ -19,6 +19,7 @@ var (
 	MinIOError          = createDescription("MinIOError", "服务器内部错误", ERROR)
 	GobEncodingError    = createDescription("GobEncodingError", "服务器内部错误", ERROR)
 	GobDecodingError    = createDescription("GobDecodingError", "服务器内部错误", ERROR)
+	GPTWorkerError      = createDescription("GPTWorkerError", "GPT Worker 出错", ERROR)
 
 	// InvalidRequest 等错误:请求完成,但是产生了业务上的错误
 	InvalidRequest        = createDescription("InvalidRequest", "请求非法", SILENT, 400)

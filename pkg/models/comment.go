@@ -26,6 +26,10 @@ type Comment struct {
 	Like                int
 	Dislike             int
 	IsFold              bool `gorm:"default:false"`
+	IsCovered           bool `gorm:"default:false"`
+	CoverTitle          string
+	CoverContent        string
+	CoverReason         string
 }
 
 type CommentLike struct {

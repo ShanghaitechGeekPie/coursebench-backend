@@ -13,6 +13,7 @@ type GlobalConfig struct {
 	DisableMail     bool   `mapstructure:"disable_mail"`
 	AvatarSizeLimit int64  `mapstructure:"avatar_size_limit"`
 	MailSuffix      string `mapstructure:"mail_suffix"`
+	GPTWorkerURL    string `mapstructure:"gpt_worker_url"`
 }
 type TextConfig struct {
 	ServiceName   string `mapstructure:"service_name"`
