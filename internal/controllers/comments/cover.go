@@ -8,8 +8,10 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"io"
 	"net/http"
 )
 
@@ -63,7 +65,11 @@ func Cover(c *fiber.Ctx) (err error) {
 			}
 			defer response.Body.Close()
 			var gptWorkerResponse GPTWorkerResponse
-			err = c.BodyParser(&gptWorkerResponse)
+			body, err := io.ReadAll(response.Body)
+			if err != nil {
+				return errors.New(errors.GPTWorkerError)
+			}
+			err = json.Unmarshal(body, &gptWorkerResponse)
 			if err != nil {
 				return errors.New(errors.GPTWorkerError)
 			}
