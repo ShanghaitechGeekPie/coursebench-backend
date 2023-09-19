@@ -1,6 +1,6 @@
 # coursebench-backend
 
-[GeekPie_CourseBench](https://coursebench.geekpie.club/) 的后端服务
+The backend service of [GeekPie_CourseBench](https://coursebench.geekpie.club/).
 
 ## Build
 
