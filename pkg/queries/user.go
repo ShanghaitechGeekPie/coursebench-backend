@@ -135,24 +135,11 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	u.IsActive = false
 	u.IsAdmin = false
 
-	// create a invitation code
-	for {
-		code := make([]rune, 0, 5)
-		for i := 0; i < 5; i++ {
-			code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
-		}
-		u.InvitationCode = string(code)
-
-		// check for collision
-		user = &models.User{}
-		result = db.Where("invitation_code = ?", u.InvitationCode).Take(user)
-		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.Wrap(err, errors.DatabaseError)
-		}
-		if result.RowsAffected == 0 {
-			break
-		}
+	code, err := createInvitationCode(db)
+	if err != nil {
+		return err
 	}
+	u.InvitationCode = code
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
@@ -248,26 +235,13 @@ func Login(db *gorm.DB, email, password string) (*models.User, error) {
 	}
 
 	if user.InvitationCode == "" {
-		// create a invitation code
-		for {
-			code := make([]rune, 0, 5)
-			for i := 0; i < 5; i++ {
-				code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
-			}
-			user.InvitationCode = string(code)
-
-			// check for collision
-			u := &models.User{}
-			result = db.Where("invitation_code = ?", u.InvitationCode).Take(u)
-			if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.Wrap(err, errors.DatabaseError)
-			}
-			if result.RowsAffected == 0 {
-				break
-			}
+		code, err := createInvitationCode(db)
+		if err != nil {
+			return nil, err
 		}
 
-		err := db.Select("invitation_code").Save(user).Error
+		user.InvitationCode = code
+		err = db.Select("invitation_code").Save(user).Error
 		if err != nil {
 			return nil, errors.Wrap(err, errors.DatabaseError)
 		}
@@ -451,4 +425,27 @@ func CheckInvitationCode(code string) bool {
 		}
 	}
 	return true
+}
+
+func createInvitationCode(db *gorm.DB) (string, error) {
+	// try a few times before giving up
+	for i := 0; i < 5; i++ {
+		codeRunes := make([]rune, 0, 5)
+		for i := 0; i < 5; i++ {
+			codeRunes = append(codeRunes, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
+		}
+		code := string(codeRunes)
+
+		// check for collision
+		u := &models.User{}
+		result := db.Where("invitation_code = ?", code).Take(u)
+		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errors.Wrap(err, errors.DatabaseError)
+		}
+		if result.RowsAffected == 0 {
+			return code, nil
+		}
+	}
+
+	return "", errors.New(errors.InternalServerError)
 }
