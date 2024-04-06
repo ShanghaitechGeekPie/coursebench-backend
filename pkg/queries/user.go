@@ -103,14 +103,14 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 
 	// check if the invitation code is valid
 	if invitation_code != "" {
-		user := &models.User{}
-		result := db.Where("invitation_code = ?", invitation_code).Take(user)
-		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.Wrap(err, errors.DatabaseError)
+		taken, err := isInvitationCodeTaken(db, invitation_code)
+		if err != nil {
+			return err
 		}
-		if result.RowsAffected == 0 {
+		if !taken {
 			return errors.New(errors.InvitationCodeInvalid)
 		}
+
 		// TODO: Inform the inviter
 	}
 
@@ -436,16 +436,23 @@ func createInvitationCode(db *gorm.DB) (string, error) {
 		}
 		code := string(codeRunes)
 
-		// check for collision
-		u := &models.User{}
-		result := db.Where("invitation_code = ?", code).Take(u)
-		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", errors.Wrap(err, errors.DatabaseError)
+		taken, err := isInvitationCodeTaken(db, code)
+		if err != nil {
+			return "", err
 		}
-		if result.RowsAffected == 0 {
+		if !taken {
 			return code, nil
 		}
 	}
 
 	return "", errors.New(errors.InternalServerError)
+}
+
+func isInvitationCodeTaken(db *gorm.DB, code string) (bool, error) {
+	user := &models.User{}
+	result := db.Where("invitation_code = ?", code).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, errors.Wrap(err, errors.DatabaseError)
+	}
+	return result.RowsAffected != 0, nil
 }
