@@ -2,6 +2,7 @@ package models
 
 import (
 	"coursebench-backend/pkg/modelRegister"
+
 	"gorm.io/gorm"
 )
 
