@@ -5,6 +5,7 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+
 	"github.com/gofiber/fiber/v2"
 )
 
