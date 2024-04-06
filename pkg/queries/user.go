@@ -135,14 +135,24 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	u.IsActive = false
 	u.IsAdmin = false
 
-	// creaete a invitation code
-	code := make([]rune, 0, 5)
-	for i := 0; i < 5; i++ {
-		code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
-	}
-	u.InvitationCode = string(code)
+	// create a invitation code
+	for {
+		code := make([]rune, 0, 5)
+		for i := 0; i < 5; i++ {
+			code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
+		}
+		u.InvitationCode = string(code)
 
-	// TODO: check for invitation code collision
+		// check for collision
+		user = &models.User{}
+		result = db.Where("invitation_code = ?", u.InvitationCode).Take(user)
+		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		if result.RowsAffected == 0 {
+			break
+		}
+	}
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
