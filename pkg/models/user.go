@@ -46,4 +46,5 @@ type ProfileResponse struct {
 	IsAnonymous      bool      `json:"is_anonymous"`
 	IsAdmin          bool      `json:"is_admin"`
 	IsCommunityAdmin bool      `json:"is_community_admin"`
+	InvitationCode   string    `json:"invitation_code"`
 }
