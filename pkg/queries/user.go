@@ -247,6 +247,32 @@ func Login(db *gorm.DB, email, password string) (*models.User, error) {
 		return nil, errors.New(errors.UserNotActive)
 	}
 
+	if user.InvitationCode == "" {
+		// create a invitation code
+		for {
+			code := make([]rune, 0, 5)
+			for i := 0; i < 5; i++ {
+				code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
+			}
+			user.InvitationCode = string(code)
+
+			// check for collision
+			u := &models.User{}
+			result = db.Where("invitation_code = ?", u.InvitationCode).Take(u)
+			if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, errors.Wrap(err, errors.DatabaseError)
+			}
+			if result.RowsAffected == 0 {
+				break
+			}
+		}
+
+		err := db.Select("invitation_code").Save(user).Error
+		if err != nil {
+			return nil, errors.Wrap(err, errors.DatabaseError)
+		}
+	}
+
 	return user, nil
 }
 
