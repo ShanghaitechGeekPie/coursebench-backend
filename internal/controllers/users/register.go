@@ -10,12 +10,13 @@ import (
 )
 
 type RegisterRequest struct {
-	Email    string           `json:"email"`
-	Password string           `json:"password"`
-	Year     int              `json:"year"`
-	Grade    models.GradeType `json:"grade"`
-	Captcha  string           `json:"captcha"`
-	Nickname string           `json:"nickname"`
+	Email          string           `json:"email"`
+	Password       string           `json:"password"`
+	Year           int              `json:"year"`
+	Grade          models.GradeType `json:"grade"`
+	Captcha        string           `json:"captcha"`
+	Nickname       string           `json:"nickname"`
+	InvitationCode string           `json:"invitation_code"`
 }
 
 func Register(c *fiber.Ctx) (err error) {
