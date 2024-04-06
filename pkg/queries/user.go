@@ -96,6 +96,9 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	if !CheckRealName(u.RealName) {
 		return errors.New(errors.InvalidArgument)
 	}
+	if !CheckInvitationCode(invitation_code) {
+		return errors.New(errors.InvalidArgument)
+	}
 
 	// 检查邮箱是否已存在
 	user := &models.User{}
@@ -370,6 +373,21 @@ func CheckRealName(realname string) bool {
 	r := []rune(realname)
 	for _, c := range r {
 		if !unicode.IsGraphic(c) {
+			return false
+		}
+	}
+	return true
+}
+
+func CheckInvitationCode(code string) bool {
+	if len(code) == 0 {
+		return true
+	}
+	if len(code) != 5 {
+		return false
+	}
+	for _, c := range code {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') {
 			return false
 		}
 	}
