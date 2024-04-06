@@ -72,7 +72,7 @@ func ResetPasswordActive(db *gorm.DB, id uint, code string, password string) (er
 	return nil
 }
 
-func Register(db *gorm.DB, u *models.User) error {
+func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	if db == nil {
 		db = database.GetDB()
 	}
