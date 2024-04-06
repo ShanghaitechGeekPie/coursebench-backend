@@ -7,6 +7,7 @@ import (
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 	"unicode"
@@ -133,6 +134,15 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	u.Password = string(hash)
 	u.IsActive = false
 	u.IsAdmin = false
+
+	// creaete a invitation code
+	code := make([]rune, 0, 5)
+	for i := 0; i < 5; i++ {
+		code = append(code, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
+	}
+	u.InvitationCode = string(code)
+
+	// TODO: check for invitation code collision
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
