@@ -7,12 +7,13 @@ import (
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
 	"fmt"
-	"github.com/badoux/checkmail"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/badoux/checkmail"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func ResetPassword(db *gorm.DB, email string) error {
