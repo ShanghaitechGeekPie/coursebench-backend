@@ -100,6 +100,19 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 		return errors.New(errors.InvalidArgument)
 	}
 
+	// check if the invitation code is valid
+	if invitation_code != "" {
+		user := &models.User{}
+		result := db.Where("invitation_code = ?", invitation_code).Take(user)
+		if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		if result.RowsAffected == 0 {
+			return errors.New(errors.InvitationCodeInvalid)
+		}
+		// TODO: Inform the inviter
+	}
+
 	// 检查邮箱是否已存在
 	user := &models.User{}
 	result := db.Where("email = ?", u.Email).Take(user)
