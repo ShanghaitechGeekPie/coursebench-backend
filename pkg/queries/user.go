@@ -346,7 +346,11 @@ func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) 
 	if user.IsAnonymous && id != uid {
 		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
 	} else {
-		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin, InvitationCode: user.InvitationCode}, nil
+		r := models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}
+		if id == uid {
+			r.InvitationCode = user.InvitationCode
+		}
+		return r, nil
 	}
 }
 
