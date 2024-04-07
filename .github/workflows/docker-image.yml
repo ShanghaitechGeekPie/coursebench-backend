@@ -19,4 +19,5 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag $tag
     - name: Push the Docker image1
+      if: github.ref == 'refs/heads/master'
       run: docker push $tag
