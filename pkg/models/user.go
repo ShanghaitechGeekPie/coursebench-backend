@@ -27,6 +27,8 @@ type User struct {
 	IsAnonymous      bool
 	IsAdmin          bool `gorm:"default:false"`
 	IsCommunityAdmin bool `gorm:"default:false"`
+	Reward		     int  `gorm:"default:0"`
+	IsCommitted	     bool `gorm:"default:false"`
 }
 
 func init() {
