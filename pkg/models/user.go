@@ -2,6 +2,7 @@ package models
 
 import (
 	"coursebench-backend/pkg/modelRegister"
+
 	"gorm.io/gorm"
 )
 
@@ -27,6 +28,7 @@ type User struct {
 	IsAnonymous      bool
 	IsAdmin          bool `gorm:"default:false"`
 	IsCommunityAdmin bool `gorm:"default:false"`
+	InvitationCode   string
 }
 
 func init() {
@@ -44,4 +46,5 @@ type ProfileResponse struct {
 	IsAnonymous      bool      `json:"is_anonymous"`
 	IsAdmin          bool      `json:"is_admin"`
 	IsCommunityAdmin bool      `json:"is_community_admin"`
+	InvitationCode   string    `json:"invitation_code"`
 }
