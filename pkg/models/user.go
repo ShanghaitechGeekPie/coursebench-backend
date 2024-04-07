@@ -29,6 +29,7 @@ type User struct {
 	IsAdmin          bool `gorm:"default:false"`
 	IsCommunityAdmin bool `gorm:"default:false"`
 	InvitationCode   string
+	Reward           int
 }
 
 func init() {
