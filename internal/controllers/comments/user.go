@@ -111,6 +111,7 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 			CoverTitle:   v.CoverTitle,
 			CoverContent: v.CoverContent,
 			CoverReason:  v.CoverReason,
+			Reward:       v.Reward,
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
 		if !anonymous || v.User.ID == uid {
