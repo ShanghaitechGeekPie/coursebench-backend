@@ -117,6 +117,15 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 		} else if !showAnonymous {
 			continue
 		}
+
+		user,err:=queries.GetUserByID(nil,v.User.ID)
+		if err==nil{
+			if user.InvCanReward == true{
+				user.Reward+=1
+				user.InvCanReward=false
+			}
+		}
+
 		for _, t := range v.CourseGroup.Teachers {
 			c.Group.Teachers = append(c.Group.Teachers, struct {
 				ID   uint   `json:"id"`

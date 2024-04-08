@@ -121,6 +121,29 @@ func Register(db *gorm.DB, u *models.User) error {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
+
+
+	
+	//若该用户通过邀请码注册
+	if u.InvitationCode != ""{
+		//寻找邀请人，找到后邀请人加一元
+		userInvite:= &models.User{}
+		resultInvite := db.Where("invitation_code = ?", u.InvitationCode).Take(userInvite)
+		if err:=resultInvite.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		if result.RowsAffected > 0 {
+			if user.IsActive {
+				return errors.New(errors.UserEmailDuplicated)
+			} else {
+				db.Delete(user)
+			}
+		}
+		userInvite.Reward += 1		
+		//
+		u.InvCanReward = true
+	}
+
 	body := fmt.Sprintf(`<html><body>
 <h1>欢迎注册%s</h1> <p>我们已经接收到您的电子邮箱验证申请，请点击以下链接完成注册。</p>
 <p>验证完成后，您将能够即刻发布课程评价，并与其他用户互动。</p>
