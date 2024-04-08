@@ -7,8 +7,9 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type CommentResponse struct {
@@ -43,6 +44,7 @@ type CommentResponse struct {
 	CoverTitle   string `json:"cover_title"`
 	CoverContent string `json:"cover_content"`
 	CoverReason  string `json:"cover_reason"`
+	Reward       int    `json:"reward"`
 }
 
 type CommentLikeResult struct {

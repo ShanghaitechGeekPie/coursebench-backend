@@ -5,8 +5,9 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func Profile(c *fiber.Ctx) error {
@@ -24,8 +25,20 @@ func Profile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  response,
-		Error: false,
-	})
+	currentUser, err := queries.GetUserByID(nil, uid)
+	if err != nil {
+		return err
+	}
+	if uid == id || currentUser.IsAdmin || currentUser.IsCommunityAdmin {
+		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+			Data:  response,
+			Error: false,
+		})
+	} else {
+		response.Reward = -1
+		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+			Data:  response,
+			Error: false,
+		})
+	}
 }

@@ -6,8 +6,10 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
-	"github.com/gofiber/fiber/v2"
+	"coursebench-backend/pkg/queries"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CourseGroupComment(c *fiber.Ctx) (err error) {
@@ -37,8 +39,20 @@ func CourseGroupComment(c *fiber.Ctx) (err error) {
 	}
 	var response []CommentResponse
 	response = GenerateResponse(comments, uid, likeResult, true, utils.GetIP(c))
-	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data:  response,
-		Error: false,
-	})
+	currentUser, err := queries.GetUserByID(nil, uid)
+	if err != nil {
+		return err
+	}
+	if currentUser.IsAdmin || currentUser.IsCommunityAdmin {
+		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+			Data:  response,
+			Error: false,
+		})
+	} else {
+		response.Reward = -1
+		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+			Data:  response,
+			Error: false,
+		})
+	}
 }
