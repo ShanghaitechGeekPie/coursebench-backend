@@ -349,9 +349,8 @@ func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) 
 		r := models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin, Reward: user.Reward}
 		if id == uid {
 			r.InvitationCode = user.InvitationCode
-			r.Reward = user.Reward
 		}
-		if user.IsAdmin || user.IsCommunityAdmin {
+		if id == uid || user.IsAdmin || user.IsCommunityAdmin {
 			r.Reward = user.Reward
 		}
 		return r, nil
