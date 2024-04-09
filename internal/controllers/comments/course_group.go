@@ -43,16 +43,14 @@ func CourseGroupComment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	if currentUser.IsAdmin || currentUser.IsCommunityAdmin {
-		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-			Data:  response,
-			Error: false,
-		})
-	} else {
-		response.Reward = -1
-		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-			Data:  response,
-			Error: false,
-		})
+	if !currentUser.IsAdmin && !currentUser.IsCommunityAdmin {
+		for i := range response {
+			// 设置评论的 Reward 字段为 -1，表示不可见
+			response[i].Reward = -1
+		}
 	}
+	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+		Data:  response,
+		Error: false,
+	})
 }

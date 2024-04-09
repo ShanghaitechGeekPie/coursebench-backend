@@ -29,16 +29,11 @@ func Profile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	if uid == id || currentUser.IsAdmin || currentUser.IsCommunityAdmin {
-		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-			Data:  response,
-			Error: false,
-		})
-	} else {
+	if !(uid == id || currentUser.IsAdmin || currentUser.IsCommunityAdmin) {
 		response.Reward = -1
-		return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-			Data:  response,
-			Error: false,
-		})
 	}
+	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
+		Data:  response,
+		Error: false,
+	})
 }
