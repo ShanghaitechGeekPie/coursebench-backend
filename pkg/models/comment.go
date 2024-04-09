@@ -30,7 +30,7 @@ type Comment struct {
 	CoverTitle          string
 	CoverContent        string
 	CoverReason         string
-	Reward			    int  `gorm:"default:0"`
+	Reward			    int  
 }
 
 type CommentLike struct {

@@ -152,7 +152,7 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	if u.InvitationCode != ""{
 		//寻找邀请人，找到后邀请人加一元
 		userInvite:= &models.User{}
-		resultInvite := db.Where("invitation_code = ?", u.InvitationCode).Take(userInvite)
+		resultInvite := db.Where("invitation_code = ?", invitation_code).Take(userInvite)
 		if err:=resultInvite.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.Wrap(err, errors.DatabaseError)
 		}
@@ -163,9 +163,9 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 				db.Delete(user)
 			}
 		}
-		userInvite.Reward += 1		
-		//
-		u.InvCanReward = true
+		userInvite.Reward += 100		
+		//将此字段标记为true，表示当被邀请人发表评论时可获得奖励
+		u.InvCommitReward = true
 	}
 
 	body := fmt.Sprintf(`<html><body>

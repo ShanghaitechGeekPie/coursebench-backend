@@ -120,9 +120,9 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 
 		user,err:=queries.GetUserByID(nil,v.User.ID)
 		if err==nil{
-			if user.InvCanReward == true{
-				user.Reward+=1
-				user.InvCanReward=false
+			if user.InvCommitReward == true{
+				user.Reward += 100
+				user.InvCommitReward = false
 			}
 		}
 
