@@ -25,13 +25,6 @@ func Profile(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	currentUser, err := queries.GetUserByID(nil, uid)
-	if err != nil {
-		return err
-	}
-	if !(uid == id || currentUser.IsAdmin || currentUser.IsCommunityAdmin) {
-		response.Reward = -1
-	}
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  response,
 		Error: false,
