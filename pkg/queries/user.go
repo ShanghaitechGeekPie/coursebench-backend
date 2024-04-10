@@ -350,6 +350,11 @@ func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) 
 		if id == uid {
 			r.InvitationCode = user.InvitationCode
 		}
+		if id == uid || user.IsAdmin || user.IsCommunityAdmin {
+			r.Reward = user.Reward
+		} else {
+			r.Reward = -1
+		}
 		return r, nil
 	}
 }

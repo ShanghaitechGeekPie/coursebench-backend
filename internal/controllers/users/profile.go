@@ -5,8 +5,9 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func Profile(c *fiber.Ctx) error {

@@ -7,8 +7,9 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type CommentResponse struct {
@@ -43,6 +44,7 @@ type CommentResponse struct {
 	CoverTitle   string `json:"cover_title"`
 	CoverContent string `json:"cover_content"`
 	CoverReason  string `json:"cover_reason"`
+	Reward       int    `json:"reward"`
 }
 
 type CommentLikeResult struct {
@@ -109,8 +111,16 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 			CoverTitle:   v.CoverTitle,
 			CoverContent: v.CoverContent,
 			CoverReason:  v.CoverReason,
+			Reward:       v.Reward,
 		}
 		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
+		currentUser, err := queries.GetUserByID(nil, uid)
+		if err != nil {
+			c.Reward = -2
+		}
+		if !currentUser.IsAdmin && !currentUser.IsCommunityAdmin {
+			c.Reward = -1
+		}
 		if !anonymous || v.User.ID == uid {
 			t, _ := queries.GetProfile(nil, v.UserID, uid)
 			c.User = &t
