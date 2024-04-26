@@ -111,8 +111,10 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 			return err
 		}
 
-		// TODO: Inform the inviter
 		u.InvitedByUserID = inviter.ID
+		// TODO: only once for the inviter?
+		inviter.Reward += 100
+		db.Save(inviter)
 	}
 
 	// 检查邮箱是否已存在
