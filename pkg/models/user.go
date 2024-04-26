@@ -17,19 +17,20 @@ const (
 
 type User struct {
 	gorm.Model
-	Email            string `gorm:"index"`
-	Password         string
-	NickName         string
-	RealName         string
-	Year             int
-	Grade            GradeType
-	IsActive         bool
-	Avatar           string
-	IsAnonymous      bool
-	IsAdmin          bool `gorm:"default:false"`
-	IsCommunityAdmin bool `gorm:"default:false"`
-	InvitationCode   string
-	Reward           int
+	Email             string `gorm:"index"`
+	Password          string
+	NickName          string
+	RealName          string
+	Year              int
+	Grade             GradeType
+	IsActive          bool
+	Avatar            string
+	IsAnonymous       bool
+	IsAdmin           bool `gorm:"default:false"`
+	IsCommunityAdmin  bool `gorm:"default:false"`
+	InvitationCode    string
+	Reward            int
+	HasPostedComments bool `gorm:"default:false"`
 }
 
 func init() {
