@@ -112,7 +112,7 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 		}
 
 		// TODO: Inform the inviter
-		_ = inviter
+		u.InvitedByUserID = inviter.ID
 	}
 
 	// 检查邮箱是否已存在
