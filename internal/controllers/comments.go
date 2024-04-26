@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"coursebench-backend/internal/controllers/comments"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -14,6 +15,7 @@ func CommentRoutes(r fiber.Router) {
 	route.Get("/course_group/:id", comments.CourseGroupComment)
 	route.Get("/course/:id", comments.CourseComment)
 	route.Get("/recent", comments.RecentComment)
+	route.Get("/recent/:id", comments.RecentCommentByPage)
 	route.Post("/like", comments.Like)
 	route.Post("/fold", comments.Fold)
 	route.Post("/cover", comments.Cover)
