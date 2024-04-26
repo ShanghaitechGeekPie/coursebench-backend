@@ -29,6 +29,7 @@ type User struct {
 	IsAdmin           bool `gorm:"default:false"`
 	IsCommunityAdmin  bool `gorm:"default:false"`
 	InvitationCode    string
+	InvitedByUserID   uint
 	Reward            int
 	HasPostedComments bool `gorm:"default:false"`
 }
