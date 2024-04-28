@@ -9,4 +9,5 @@ import (
 func RewardRoutes(r fiber.Router) {
 	route := r.Group("/reward")
 	route.Get("/ranklist", reward.Ranklist)
+	route.Post("/set/:id", reward.SetComment)
 }

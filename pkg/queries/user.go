@@ -103,15 +103,18 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 
 	// check if the invitation code is valid
 	if invitation_code != "" {
-		taken, err := isInvitationCodeTaken(db, invitation_code)
+		inviter, err := GetUserByInvitationCode(db, invitation_code)
 		if err != nil {
+			if errors.Is(err, errors.UserNotExists) {
+				return errors.New(errors.InvitationCodeInvalid)
+			}
 			return err
 		}
-		if !taken {
-			return errors.New(errors.InvitationCodeInvalid)
-		}
 
-		// TODO: Inform the inviter
+		u.InvitedByUserID = inviter.ID
+		// TODO: only once for the inviter?
+		inviter.Reward += 100
+		db.Save(inviter)
 	}
 
 	// 检查邮箱是否已存在
@@ -445,23 +448,31 @@ func createInvitationCode(db *gorm.DB) (string, error) {
 		}
 		code := string(codeRunes)
 
-		taken, err := isInvitationCodeTaken(db, code)
+		_, err := GetUserByInvitationCode(db, code)
 		if err != nil {
+			if errors.Is(err, errors.UserNotExists) {
+				return code, nil
+			}
 			return "", err
-		}
-		if !taken {
-			return code, nil
 		}
 	}
 
 	return "", errors.New(errors.InternalServerError)
 }
 
-func isInvitationCodeTaken(db *gorm.DB, code string) (bool, error) {
+func GetUserByInvitationCode(db *gorm.DB, code string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+
 	user := &models.User{}
 	result := db.Where("invitation_code = ?", code).Take(user)
 	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, errors.Wrap(err, errors.DatabaseError)
+		return nil, errors.Wrap(err, errors.DatabaseError)
 	}
-	return result.RowsAffected != 0, nil
+	if result.RowsAffected == 0 {
+		return nil, errors.New(errors.UserNotExists)
+	}
+
+	return user, nil
 }
