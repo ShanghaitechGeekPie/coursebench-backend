@@ -31,13 +31,11 @@ func RecentCommentByPage(c *fiber.Ctx) (err error) {
 
 	db := database.GetDB()
 	var comments []models.Comment
-	result := db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").
-		Order("update_time DESC").Offset((id - 1) * 30).Limit(31).Find(&comments)
+	var count int64
+	result := db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").Count(&count).
+		Order("update_time DESC").Offset((id - 1) * 30).Limit(30).Find(&comments)
 	if err := result.Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
-	}
-	if result.RowsAffected == 31 {
-		comments = comments[:30]
 	}
 
 	var likeResult []CommentLikeResult
@@ -49,9 +47,10 @@ func RecentCommentByPage(c *fiber.Ctx) (err error) {
 	var response []CommentResponse
 	response = GenerateResponse(comments, uid, likeResult, true, utils.GetIP(c))
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
-		Data: fiber.Map{
-			"has_more": result.RowsAffected == 31,
-			"comments": response,
+		Data: RecentCommentByPageResponse{
+			PageCount: (count + 29) / 30, // ceil
+			HasMore:   count > int64(id)*30,
+			Comments:  response,
 		},
 		Error: false,
 	})
