@@ -11,6 +11,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type RecentCommentByPageResponse struct {
+	PageCount int64             `json:"page_count"`
+	HasMore   bool              `json:"has_more"`
+	Comments  []CommentResponse `json:"comments"`
+}
+
 func RecentCommentByPage(c *fiber.Ctx) (err error) {
 	uid, err := session.GetUserID(c)
 	if err != nil {
