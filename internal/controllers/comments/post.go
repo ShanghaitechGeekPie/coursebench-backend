@@ -130,6 +130,7 @@ func Post(c *fiber.Ctx) (err error) {
 			return nil
 		}
 		user.HasPostedComments = true
+		tx.Save(user)
 
 		inviter, err := queries.GetUserByID(tx, user.InvitedByUserID)
 		if err != nil {
