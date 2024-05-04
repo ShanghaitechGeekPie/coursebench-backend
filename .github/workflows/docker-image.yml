@@ -27,6 +27,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        push: ${{github.ref == 'refs/heads/master' || 'refs/heads/release'}}
+        push: ${{github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release'}}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
