@@ -117,8 +117,7 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 		currentUser, err := queries.GetUserByID(nil, uid)
 		if err != nil {
 			c.Reward = -2
-		}
-		if !currentUser.IsAdmin && !currentUser.IsCommunityAdmin {
+		}else if !currentUser.IsAdmin && !currentUser.IsCommunityAdmin {
 			c.Reward = -1
 		}
 		if !anonymous || v.User.ID == uid {
