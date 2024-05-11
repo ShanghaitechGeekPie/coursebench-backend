@@ -113,13 +113,6 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 			CoverReason:  v.CoverReason,
 			Reward:       v.Reward,
 		}
-		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
-		currentUser, err := queries.GetUserByID(nil, uid)
-		if err != nil {
-			c.Reward = -2
-		} else if !currentUser.IsAdmin && !currentUser.IsCommunityAdmin {
-			c.Reward = -1
-		}
 		if !anonymous || v.User.ID == uid {
 			t, _ := queries.GetProfile(nil, v.UserID, uid)
 			c.User = &t
