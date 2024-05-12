@@ -49,6 +49,7 @@ var (
 	CaptchaMismatch       = createDescription("CaptchaMismatch", "验证码错误", SILENT, 400)
 	NoCaptchaToken        = createDescription("NoCaptchaToken", "未请求过验证码Token，请检查您的 Cookie 设置", SILENT, 400)
 	CaptchaExpired        = createDescription("CaptchaExpired", "验证码已过期", SILENT, 400)
+	InvitationCodeInvalid = createDescription("InvitationCodeInvalid", "邀请码无效", SILENT, 400)
 
 	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 

@@ -18,6 +18,7 @@ package models
 
 import (
 	"coursebench-backend/pkg/modelRegister"
+
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -46,6 +47,7 @@ type Comment struct {
 	CoverTitle          string
 	CoverContent        string
 	CoverReason         string
+	Reward              int
 }
 
 type CommentLike struct {

@@ -19,6 +19,7 @@ package fiber
 import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/internal/controllers"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -33,5 +34,5 @@ func Routes(app *fiber.App) {
 	controllers.CourseRoutes(route)
 	controllers.CommentRoutes(route)
 	controllers.TeacherRoute(route)
-
+	controllers.RewardRoutes(route)
 }

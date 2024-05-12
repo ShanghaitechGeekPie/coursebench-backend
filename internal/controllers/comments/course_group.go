@@ -22,8 +22,9 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func CourseGroupComment(c *fiber.Ctx) (err error) {

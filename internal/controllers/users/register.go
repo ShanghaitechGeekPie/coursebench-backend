@@ -21,16 +21,18 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 type RegisterRequest struct {
-	Email    string           `json:"email"`
-	Password string           `json:"password"`
-	Year     int              `json:"year"`
-	Grade    models.GradeType `json:"grade"`
-	Captcha  string           `json:"captcha"`
-	Nickname string           `json:"nickname"`
+	Email          string           `json:"email"`
+	Password       string           `json:"password"`
+	Year           int              `json:"year"`
+	Grade          models.GradeType `json:"grade"`
+	Captcha        string           `json:"captcha"`
+	Nickname       string           `json:"nickname"`
+	InvitationCode string           `json:"invitation_code"`
 }
 
 func Register(c *fiber.Ctx) (err error) {
@@ -54,7 +56,7 @@ func Register(c *fiber.Ctx) (err error) {
 		Avatar:      "",
 		IsAnonymous: false,
 	}
-	if err = queries.Register(nil, &user); err != nil {
+	if err = queries.Register(nil, &user, userReq.InvitationCode); err != nil {
 		return
 	}
 	if config.GlobalConf.DisableMail {

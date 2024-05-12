@@ -22,9 +22,10 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"time"
 )
 
 type PostRequest struct {
@@ -133,6 +134,30 @@ func Post(c *fiber.Ctx) (err error) {
 		if err != nil {
 			return errors.Wrap(err, errors.DatabaseError)
 		}
+
+		// If this is the first time for the poster to post a comment, the reward the inviter.
+		var user models.User
+		err = tx.First(&user, uid).Error
+		if err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+
+		if user.HasPostedComments {
+			return nil
+		}
+		user.HasPostedComments = true
+		tx.Save(user)
+
+		if user.InvitedByUserID == 0 {
+			return nil
+		}
+		inviter, err := queries.GetUserByID(tx, user.InvitedByUserID)
+		if err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+		inviter.Reward += 100
+		tx.Save(inviter)
+
 		return nil
 	})
 	if err != nil {
