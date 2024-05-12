@@ -6,13 +6,13 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 type SetCommentRequest struct {
+	ID     int `json:"id"`
 	Reward int `json:"reward"`
 }
 
@@ -21,12 +21,6 @@ func SetComment(c *fiber.Ctx) error {
 	var request SetCommentRequest
 	if err := c.BodyParser(&request); err != nil {
 		return errors.Wrap(err, errors.InvalidArgument)
-	}
-
-	idRaw := c.Params("id", "GG")
-	id, err := strconv.Atoi(idRaw)
-	if err != nil {
-		return errors.New(errors.InvalidArgument)
 	}
 
 	uid, err := session.GetUserID(c)
@@ -44,7 +38,7 @@ func SetComment(c *fiber.Ctx) error {
 	}
 
 	comment := &models.Comment{}
-	result := db.First(&comment, id)
+	result := db.First(&comment, request.ID)
 	if result.Error != nil {
 		return errors.Wrap(result.Error, errors.DatabaseError)
 	}
