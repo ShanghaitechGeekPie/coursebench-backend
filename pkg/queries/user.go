@@ -347,29 +347,43 @@ func GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
 	return user, nil
 }
 
-// id: 被查询用户的id
-// uid: 查询用户的id
-// ip: 查询用户的ip
-func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) {
+func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.ProfileResponse, error) {
 	if db == nil {
 		db = database.GetDB()
 	}
-	user, err := GetUserByID(db, id)
+
+	user, err := GetUserByID(db, queriedUserID)
 	if err != nil {
 		return models.ProfileResponse{}, err
 	}
+
+	// As written in the previous commit, administrators do not
+	// have access to the invitation code of users other than themselves.
+	var displayInvitationCode bool = queryingUserID == queriedUserID
+	var displayReward bool = queryingUserID == queriedUserID
+
+	if queryingUserID != 0 && queryingUserID != queriedUserID {
+		queryingUser, err := GetUserByID(db, queryingUserID)
+		if err != nil {
+			return models.ProfileResponse{}, err
+		}
+		if queryingUser.IsAdmin || queryingUser.IsCommunityAdmin {
+			displayReward = true
+		}
+	}
+
 	avatar := ""
 	if user.Avatar != "" {
 		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(), database.MinioConf.Bucket, user.Avatar)
 	}
-	if user.IsAnonymous && id != uid {
-		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
+	if user.IsAnonymous && queryingUserID != queriedUserID {
+		return models.ProfileResponse{ID: user.ID, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
 	} else {
-		r := models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}
-		if id == uid {
+		r := models.ProfileResponse{ID: user.ID, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}
+		if displayInvitationCode {
 			r.InvitationCode = user.InvitationCode
 		}
-		if id == uid || user.IsAdmin || user.IsCommunityAdmin {
+		if displayReward {
 			r.Reward = user.Reward
 		} else {
 			r.Reward = -1
