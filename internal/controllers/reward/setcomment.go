@@ -51,7 +51,7 @@ func SetComment(c *fiber.Ctx) error {
 		if err := tx.Save(comment).Error; err != nil {
 			return err
 		}
-		if err := tx.Save(user).Error; err != nil {
+		if err := tx.Save(&comment.User).Error; err != nil {
 			return err
 		}
 		return nil
