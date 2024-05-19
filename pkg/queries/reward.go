@@ -16,7 +16,7 @@ func Ranklist(db *gorm.DB) ([]models.RanklistResponse, error) {
 	var ranklist []models.RanklistResponse
 	result := db.Model(&models.User{}).
 		Select("nick_name", "reward", "is_anonymous").
-		Order("rewards DESC").
+		Order("reward DESC").
 		Limit(30).
 		Scan(&ranklist)
 
