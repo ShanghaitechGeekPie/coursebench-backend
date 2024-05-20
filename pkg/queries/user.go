@@ -360,6 +360,7 @@ func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.Pr
 	displayInvitationCode := queryingUserID == queriedUserID
 	displayReward := queryingUserID == queriedUserID
 
+	// don't query if not logged in
 	if queryingUserID != 0 && queryingUserID != queriedUserID {
 		queryingUser, err := GetUserByID(db, queryingUserID)
 		if err != nil {
