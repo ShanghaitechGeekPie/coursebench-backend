@@ -359,7 +359,7 @@ func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.Pr
 
 	// As written in the previous commit, administrators do not
 	// have access to the invitation code of users other than themselves.
-	var displayInvitationCode bool = queryingUserID == queriedUserID
+	displayInvitationCode := queryingUserID == queriedUserID
 	var displayReward bool = queryingUserID == queriedUserID
 
 	if queryingUserID != 0 && queryingUserID != queriedUserID {
