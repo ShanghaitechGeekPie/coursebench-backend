@@ -38,7 +38,7 @@ func SetComment(c *fiber.Ctx) error {
 	}
 
 	comment := &models.Comment{}
-	result := db.First(&comment, request.ID)
+	result := db.Preload("User").First(&comment, request.ID)
 	if result.Error != nil {
 		return errors.Wrap(result.Error, errors.DatabaseError)
 	}
