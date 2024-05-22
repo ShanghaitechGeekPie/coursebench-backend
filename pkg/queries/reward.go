@@ -18,7 +18,7 @@ func Ranklist(db *gorm.DB) ([]models.RanklistResponse, error) {
 		Select("nick_name", "reward", "is_anonymous").
 		Order("reward DESC").
 		Limit(30).
-		Scan(&ranklist)
+		Find(&ranklist)
 
 	for i := range ranklist {
 		if ranklist[i].IsAnonymous {
