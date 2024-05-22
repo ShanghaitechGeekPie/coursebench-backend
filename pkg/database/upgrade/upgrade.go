@@ -22,6 +22,7 @@ import (
 	"coursebench-backend/pkg/log"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+
 	"gorm.io/gorm"
 )
 
@@ -48,7 +49,11 @@ func UpgradeDB() {
 	case 2:
 		log.Println("Upgrading database version from 2 to 3...")
 		UpgradeDBFrom2To3()
+		fallthrough
 	case 3:
+		log.Println("Upgrading database version from 3 to 4...")
+		UpgradeDBFrom3To4()
+	case 4:
 	default:
 		log.Panicf("The version of database is: %d, which is newer than the backend.", metadata.DBVersion)
 	}
@@ -99,6 +104,20 @@ func UpgradeDBFrom2To3() {
 			if err != nil {
 				return errors.Wrap(err, errors.DatabaseError)
 			}
+		}
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
+func UpgradeDBFrom3To4() {
+	db := database.GetDB()
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&models.User{}).Where("reward is null").Update("reward", 0).Error
+		if err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
 		}
 		return nil
 	})
