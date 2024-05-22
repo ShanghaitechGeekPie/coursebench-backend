@@ -46,7 +46,7 @@ type User struct {
 	IsCommunityAdmin  bool `gorm:"default:false"`
 	InvitationCode    string
 	InvitedByUserID   uint
-	Reward            int
+	Reward            int  `gorm:"default:0"`
 	HasPostedComments bool `gorm:"default:false"`
 }
 
