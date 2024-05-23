@@ -48,10 +48,10 @@ func SetComment(c *fiber.Ctx) error {
 	comment.User.Reward += comment.Reward
 
 	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(comment).Error; err != nil {
+		if err := tx.Select("reward").Save(comment).Error; err != nil {
 			return err
 		}
-		if err := tx.Save(&comment.User).Error; err != nil {
+		if err := tx.Select("reward").Save(&comment.User).Error; err != nil {
 			return err
 		}
 		return nil
