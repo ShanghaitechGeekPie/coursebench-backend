@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SetCommentRequest struct {
@@ -37,25 +38,39 @@ func SetComment(c *fiber.Ctx) error {
 		return errors.New(errors.PermissionDenied)
 	}
 
-	comment := &models.Comment{}
-	result := db.Preload("User").First(&comment, request.ID)
-	if result.Error != nil {
-		return errors.Wrap(result.Error, errors.DatabaseError)
-	}
-
-	comment.User.Reward -= comment.Reward
-	comment.Reward = request.Reward
-	comment.User.Reward += comment.Reward
-
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Select("reward").Save(comment).Error; err != nil {
+	err = db.Transaction(func(tx *gorm.DB) error {
+		// lock comment & user's reward
+		comment := &models.Comment{}
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			First(comment, request.ID).Error
+		if err != nil {
 			return err
 		}
-		if err := tx.Select("reward").Save(&comment.User).Error; err != nil {
+
+		user := &models.User{}
+		err = tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			First(user, comment.UserID).Error
+		if err != nil {
 			return err
 		}
+
+		// update reward
+		user.Reward -= comment.Reward
+		user.Reward += request.Reward
+		comment.Reward = request.Reward
+
+		// save
+		if err := tx.Select("Reward").Save(user).Error; err != nil {
+			return err
+		}
+		if err := tx.Select("Reward").Save(comment).Error; err != nil {
+			return err
+		}
+
 		return nil
-	}); err != nil {
+	})
+
+	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
