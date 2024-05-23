@@ -375,20 +375,33 @@ func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.Pr
 	if user.Avatar != "" {
 		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(), database.MinioConf.Bucket, user.Avatar)
 	}
-	if user.IsAnonymous && queryingUserID != queriedUserID {
-		return models.ProfileResponse{ID: user.ID, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
-	} else {
-		r := models.ProfileResponse{ID: user.ID, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}
-		if displayInvitationCode {
-			r.InvitationCode = user.InvitationCode
-		}
-		if displayReward {
-			r.Reward = user.Reward
-		} else {
-			r.Reward = -1
-		}
-		return r, nil
+	r := models.ProfileResponse{
+		ID:               user.ID,
+		NickName:         user.NickName,
+		Avatar:           avatar,
+		IsAnonymous:      user.IsAnonymous,
+		IsAdmin:          user.IsAdmin,
+		IsCommunityAdmin: user.IsCommunityAdmin,
 	}
+
+	if !user.IsAnonymous || queryingUserID == queriedUserID {
+		r.Email = user.Email
+		r.Year = user.Year
+		r.Grade = user.Grade
+		r.RealName = user.RealName
+	}
+
+	if displayInvitationCode {
+		r.InvitationCode = user.InvitationCode
+	}
+
+	if displayReward {
+		r.Reward = user.Reward
+	} else {
+		r.Reward = -1
+	}
+
+	return r, nil
 }
 
 func CheckYear(year int) bool {
