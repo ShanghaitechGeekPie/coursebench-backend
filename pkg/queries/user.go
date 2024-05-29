@@ -117,22 +117,6 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 		return errors.New(errors.InvalidArgument)
 	}
 
-	// check if the invitation code is valid
-	if invitation_code != "" {
-		inviter, err := GetUserByInvitationCode(db, invitation_code)
-		if err != nil {
-			if errors.Is(err, errors.UserNotExists) {
-				return errors.New(errors.InvitationCodeInvalid)
-			}
-			return err
-		}
-
-		u.InvitedByUserID = inviter.ID
-		// TODO: only once for the inviter?
-		inviter.Reward += 100
-		db.Save(inviter)
-	}
-
 	// 检查邮箱是否已存在
 	user := &models.User{}
 	result := db.Where("email = ?", u.Email).Take(user)
@@ -159,6 +143,23 @@ func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 		return err
 	}
 	u.InvitationCode = code
+
+	// check if the invitation code is valid
+	if invitation_code != "" {
+		inviter, err := GetUserByInvitationCode(db, invitation_code)
+		if err != nil {
+			if errors.Is(err, errors.UserNotExists) {
+				return errors.New(errors.InvitationCodeInvalid)
+			}
+			return err
+		}
+
+		u.InvitedByUserID = inviter.ID
+		inviter.Reward += 100
+		if err = db.Select("reward").Save(inviter).Error; err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+	}
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
