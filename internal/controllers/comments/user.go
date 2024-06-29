@@ -1,3 +1,19 @@
+// Copyright (C) 2021-2024 ShanghaiTech GeekPie
+// This file is part of CourseBench Backend.
+//
+// CourseBench Backend is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// CourseBench Backend is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
+
 package comments
 
 import (
@@ -7,8 +23,9 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type CommentResponse struct {
@@ -43,6 +60,7 @@ type CommentResponse struct {
 	CoverTitle   string `json:"cover_title"`
 	CoverContent string `json:"cover_content"`
 	CoverReason  string `json:"cover_reason"`
+	Reward       int    `json:"reward"`
 }
 
 type CommentLikeResult struct {
@@ -109,8 +127,8 @@ func GenerateResponse(comments []models.Comment, uid uint, likeResult []CommentL
 			CoverTitle:   v.CoverTitle,
 			CoverContent: v.CoverContent,
 			CoverReason:  v.CoverReason,
+			Reward:       v.Reward,
 		}
-		// 该评论未设置匿名，或者是自己的评论，则显示用户信息
 		if !anonymous || v.User.ID == uid {
 			t, _ := queries.GetProfile(nil, v.UserID, uid)
 			c.User = &t

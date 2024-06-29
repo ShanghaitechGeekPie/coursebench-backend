@@ -1,3 +1,19 @@
+// Copyright (C) 2021-2024 ShanghaiTech GeekPie
+// This file is part of CourseBench Backend.
+//
+// CourseBench Backend is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// CourseBench Backend is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
+
 package errors
 
 var (
@@ -33,6 +49,7 @@ var (
 	CaptchaMismatch       = createDescription("CaptchaMismatch", "验证码错误", SILENT, 400)
 	NoCaptchaToken        = createDescription("NoCaptchaToken", "未请求过验证码Token，请检查您的 Cookie 设置", SILENT, 400)
 	CaptchaExpired        = createDescription("CaptchaExpired", "验证码已过期", SILENT, 400)
+	InvitationCodeInvalid = createDescription("InvitationCodeInvalid", "邀请码无效", SILENT, 400)
 
 	TeacherNotExists = createDescription("TeacherNotExists", "未找到教师", SILENT, 400)
 

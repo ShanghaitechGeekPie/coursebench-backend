@@ -1,3 +1,19 @@
+// Copyright (C) 2021-2024 ShanghaiTech GeekPie
+// This file is part of CourseBench Backend.
+//
+// CourseBench Backend is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// CourseBench Backend is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
+
 package queries
 
 import (
@@ -7,12 +23,14 @@ import (
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
 	"fmt"
-	"github.com/badoux/checkmail"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
+	"math/rand"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/badoux/checkmail"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func ResetPassword(db *gorm.DB, email string) error {
@@ -71,7 +89,7 @@ func ResetPasswordActive(db *gorm.DB, id uint, code string, password string) (er
 	return nil
 }
 
-func Register(db *gorm.DB, u *models.User) error {
+func Register(db *gorm.DB, u *models.User, invitation_code string) error {
 	if db == nil {
 		db = database.GetDB()
 	}
@@ -95,6 +113,9 @@ func Register(db *gorm.DB, u *models.User) error {
 	if !CheckRealName(u.RealName) {
 		return errors.New(errors.InvalidArgument)
 	}
+	if !CheckInvitationCode(invitation_code) {
+		return errors.New(errors.InvalidArgument)
+	}
 
 	// 检查邮箱是否已存在
 	user := &models.User{}
@@ -116,6 +137,29 @@ func Register(db *gorm.DB, u *models.User) error {
 	u.Password = string(hash)
 	u.IsActive = false
 	u.IsAdmin = false
+
+	code, err := createInvitationCode(db)
+	if err != nil {
+		return err
+	}
+	u.InvitationCode = code
+
+	// check if the invitation code is valid
+	if invitation_code != "" {
+		inviter, err := GetUserByInvitationCode(db, invitation_code)
+		if err != nil {
+			if errors.Is(err, errors.UserNotExists) {
+				return errors.New(errors.InvitationCodeInvalid)
+			}
+			return err
+		}
+
+		u.InvitedByUserID = inviter.ID
+		inviter.Reward += 100
+		if err = db.Select("reward").Save(inviter).Error; err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
+		}
+	}
 
 	if err = db.Create(u).Error; err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
@@ -210,6 +254,19 @@ func Login(db *gorm.DB, email, password string) (*models.User, error) {
 		return nil, errors.New(errors.UserNotActive)
 	}
 
+	if user.InvitationCode == "" {
+		code, err := createInvitationCode(db)
+		if err != nil {
+			return nil, err
+		}
+
+		user.InvitationCode = code
+		err = db.Select("invitation_code").Save(user).Error
+		if err != nil {
+			return nil, errors.Wrap(err, errors.DatabaseError)
+		}
+	}
+
 	return user, nil
 }
 
@@ -291,26 +348,61 @@ func GetUserByID(db *gorm.DB, id uint) (*models.User, error) {
 	return user, nil
 }
 
-// id: 被查询用户的id
-// uid: 查询用户的id
-// ip: 查询用户的ip
-func GetProfile(db *gorm.DB, id uint, uid uint) (models.ProfileResponse, error) {
+func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.ProfileResponse, error) {
 	if db == nil {
 		db = database.GetDB()
 	}
-	user, err := GetUserByID(db, id)
+
+	user, err := GetUserByID(db, queriedUserID)
 	if err != nil {
 		return models.ProfileResponse{}, err
 	}
+
+	displayInvitationCode := queryingUserID == queriedUserID
+	displayReward := queryingUserID == queriedUserID
+
+	// don't query if not logged in
+	if queryingUserID != 0 && queryingUserID != queriedUserID {
+		queryingUser, err := GetUserByID(db, queryingUserID)
+		if err != nil {
+			return models.ProfileResponse{}, err
+		}
+		if queryingUser.IsAdmin || queryingUser.IsCommunityAdmin {
+			displayReward = true
+		}
+	}
+
 	avatar := ""
 	if user.Avatar != "" {
 		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(), database.MinioConf.Bucket, user.Avatar)
 	}
-	if user.IsAnonymous && id != uid {
-		return models.ProfileResponse{ID: id, NickName: user.NickName, Avatar: avatar, IsAnonymous: user.IsAnonymous, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
-	} else {
-		return models.ProfileResponse{ID: id, Email: user.Email, Year: user.Year, Grade: user.Grade, NickName: user.NickName, RealName: user.RealName, IsAnonymous: user.IsAnonymous, Avatar: avatar, IsAdmin: user.IsAdmin, IsCommunityAdmin: user.IsCommunityAdmin}, nil
+	r := models.ProfileResponse{
+		ID:               user.ID,
+		NickName:         user.NickName,
+		Avatar:           avatar,
+		IsAnonymous:      user.IsAnonymous,
+		IsAdmin:          user.IsAdmin,
+		IsCommunityAdmin: user.IsCommunityAdmin,
 	}
+
+	if !user.IsAnonymous || queryingUserID == queriedUserID {
+		r.Email = user.Email
+		r.Year = user.Year
+		r.Grade = user.Grade
+		r.RealName = user.RealName
+	}
+
+	if displayInvitationCode {
+		r.InvitationCode = user.InvitationCode
+	}
+
+	if displayReward {
+		r.Reward = user.Reward
+	} else {
+		r.Reward = -1
+	}
+
+	return r, nil
 }
 
 func CheckYear(year int) bool {
@@ -373,4 +465,57 @@ func CheckRealName(realname string) bool {
 		}
 	}
 	return true
+}
+
+func CheckInvitationCode(code string) bool {
+	if len(code) == 0 {
+		return true
+	}
+	if len(code) != 5 {
+		return false
+	}
+	for _, c := range code {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') {
+			return false
+		}
+	}
+	return true
+}
+
+func createInvitationCode(db *gorm.DB) (string, error) {
+	// try a few times before giving up
+	for i := 0; i < 5; i++ {
+		codeRunes := make([]rune, 0, 5)
+		for i := 0; i < 5; i++ {
+			codeRunes = append(codeRunes, []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")[rand.Intn(62)])
+		}
+		code := string(codeRunes)
+
+		_, err := GetUserByInvitationCode(db, code)
+		if err != nil {
+			if errors.Is(err, errors.UserNotExists) {
+				return code, nil
+			}
+			return "", err
+		}
+	}
+
+	return "", errors.New(errors.InternalServerError)
+}
+
+func GetUserByInvitationCode(db *gorm.DB, code string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	user := &models.User{}
+	result := db.Where("invitation_code = ?", code).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New(errors.UserNotExists)
+	}
+
+	return user, nil
 }

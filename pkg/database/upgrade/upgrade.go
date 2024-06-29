@@ -1,3 +1,19 @@
+// Copyright (C) 2021-2024 ShanghaiTech GeekPie
+// This file is part of CourseBench Backend.
+//
+// CourseBench Backend is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// CourseBench Backend is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
+
 package upgrade
 
 import (
@@ -6,6 +22,7 @@ import (
 	"coursebench-backend/pkg/log"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
+
 	"gorm.io/gorm"
 )
 
@@ -32,7 +49,11 @@ func UpgradeDB() {
 	case 2:
 		log.Println("Upgrading database version from 2 to 3...")
 		UpgradeDBFrom2To3()
+		fallthrough
 	case 3:
+		log.Println("Upgrading database version from 3 to 4...")
+		UpgradeDBFrom3To4()
+	case 4:
 	default:
 		log.Panicf("The version of database is: %d, which is newer than the backend.", metadata.DBVersion)
 	}
@@ -83,6 +104,20 @@ func UpgradeDBFrom2To3() {
 			if err != nil {
 				return errors.Wrap(err, errors.DatabaseError)
 			}
+		}
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
+func UpgradeDBFrom3To4() {
+	db := database.GetDB()
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&models.User{}).Where("reward is null").Update("reward", 0).Error
+		if err != nil {
+			return errors.Wrap(err, errors.DatabaseError)
 		}
 		return nil
 	})
