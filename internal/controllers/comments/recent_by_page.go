@@ -30,11 +30,17 @@ func RecentCommentByPage(c *fiber.Ctx) (err error) {
 	}
 
 	db := database.GetDB()
-	var comments []models.Comment
+
 	var count int64
-	result := db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").Count(&count).
-		Order("update_time DESC").Offset((id - 1) * 30).Limit(30).Find(&comments)
-	if err := result.Error; err != nil {
+	err = db.Model(&models.Comment{}).Count(&count).Error
+	if err != nil {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+
+	var comments []models.Comment
+	err = db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").
+		Order("update_time DESC").Offset((id - 1) * 30).Limit(30).Find(&comments).Error
+	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 
