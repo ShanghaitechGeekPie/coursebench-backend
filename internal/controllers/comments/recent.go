@@ -22,6 +22,7 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -34,13 +35,13 @@ func RecentComment(c *fiber.Ctx) (err error) {
 	db := database.GetDB()
 	var comments []models.Comment
 	err = db.Preload("User").Preload("CourseGroup").Preload("CourseGroup.Course").Preload("CourseGroup.Teachers").
-		Order("update_time DESC").Limit(30).Find(&comments).Error
+		Order("update_time DESC").Limit(100).Find(&comments).Error
 	if err != nil {
 		return errors.Wrap(err, errors.DatabaseError)
 	}
 	var likeResult []CommentLikeResult
 	if uid != 0 {
-		db.Raw("SELECT comment_likes.comment_id, comment_likes.is_like from comments, comment_likes where comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL order by create_time desc LIMIT 30",
+		db.Raw("SELECT comment_likes.comment_id, comment_likes.is_like from comments, comment_likes where comment_likes.user_id = ? and comment_likes.comment_id = comments.id and comment_likes.deleted_at is NULL and comments.deleted_at is NULL order by create_time desc LIMIT 100",
 			uid).Scan(&likeResult)
 	}
 	var response []CommentResponse
