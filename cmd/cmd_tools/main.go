@@ -108,6 +108,12 @@ func main() {
 		}
 		filePath := args[2]
 		ImportAndFixTeacherUniIDAndRelations(filePath)
+	case "import_elrc":
+		if len(args) < 3 {
+			syslog.Fatalln("Missing parameters <semester>. e.g. 2024-2025-3")
+		}
+		semester := args[2]
+		ImportELRCWithSemester(semester)
 	default:
 		syslog.Fatal("Unknown command!")
 	}
