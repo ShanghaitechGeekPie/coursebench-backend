@@ -18,6 +18,7 @@ package models
 
 import (
 	"coursebench-backend/pkg/modelRegister"
+
 	"gorm.io/gorm"
 )
 
@@ -26,6 +27,7 @@ const TEACHER_OTHER_ID = 100000001
 type Teacher struct {
 	gorm.Model
 	EamsID       int
+	UniID        int
 	Name         string
 	Institute    string
 	Job          string

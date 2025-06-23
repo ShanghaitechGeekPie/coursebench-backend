@@ -96,6 +96,18 @@ func main() {
 			syslog.Fatalln(err)
 		}
 		SetCommunityAdmin(userId, false)
+	case "import_teacher_uniid":
+		if len(args) < 3 {
+			syslog.Fatalln("Missing parameters <file path>")
+		}
+		filePath := args[2]
+		ImportTeacherUniID(filePath)
+	case "import_and_fix_teacher_uniid":
+		if len(args) < 3 {
+			syslog.Fatalln("Missing parameters <teachers.json path>")
+		}
+		filePath := args[2]
+		ImportAndFixTeacherUniIDAndRelations(filePath)
 	default:
 		syslog.Fatal("Unknown command!")
 	}

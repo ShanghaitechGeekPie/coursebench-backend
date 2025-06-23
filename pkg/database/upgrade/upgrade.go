@@ -71,6 +71,7 @@ func DatabaseInit() {
 			Model:  gorm.Model{ID: models.TEACHER_OTHER_ID},
 			Name:   "其他",
 			EamsID: -1,
+			UniID:  -1,
 		}
 		if err := tx.Create(teacher).Error; err != nil {
 			return errors.Wrap(err, errors.DatabaseError)
