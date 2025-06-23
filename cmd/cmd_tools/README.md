@@ -101,16 +101,16 @@ go run cmd/cmd_tools/main.go clear_userdata Yes_Confirm
 
 以下是这些工具主要交互的数据库表的结构推断：
 
-- **`courses`**
+- **`courses`** 课程信息
   - `id`: 主键
-  - `code`: 课程代码 (唯一)
+  - `code`: 课程代码 (唯一, 不含班级代码)
   - `name`: 课程名称
   - `institute`: 开课学院
   - `credit`: 学分
   - `comment_count`: 评论数
-  - `scores`: 评分数组
+  - `scores`: 四维评分数组
 
-- **`teachers`**
+- **`teachers`** 教师信息
   - `id`: 主键
   - `name`: 教师姓名
   - `eams_id`: EAMS ID
@@ -119,24 +119,36 @@ go run cmd/cmd_tools/main.go clear_userdata Yes_Confirm
   - `email`: 邮箱
   - `institute`: 学院
   - `introduction`: 简介
+  - `uni_id`: 教师工号
 
-- **`course_groups`**
+
+- **`course_groups`** 课程组(细分课程到班/学期)
   - `id`: 主键
   - `course_id`: 外键，关联 `courses.id`
   - `comment_count`: 评论数
   - `scores`: 评分数组
 
-- **`coursegroup_teachers`** (中间表)
+- **`coursegroup_teachers`** (中间表) 课程组与教师的关系
   - `course_group_id`: 外键，关联 `course_groups.id`
   - `teacher_id`: 外键，关联 `teachers.id`
 
-- **`users`**
+- **`users`** 用户信息
   - `id`: 主键
   - `is_admin`: 布尔值，是否为普通管理员
   - `is_community_admin`: 布尔值，是否为社区管理员
 
-- **`comments`**
+- **`comments`** 用户评论
   - (存储用户发表的评论)
 
-- **`comment_likes`**
+- **`comment_likes`** 用户点赞记录
   - (存储用户对评论的点赞记录) 
+
+## 迁移日志
+
+### `import_and_fix_teacher_uniid`
+
+这是根据 ELRC 中获取到的 `teachers.json` 文件导入教师信息，并修正教师工号（`uni_id`）的命令。
+
+这条命令会**删除所有**原先的 EAMS 教师记录，并重新导入教师信息。
+
+但是由于 ELRC 仍然有很多课程信息不全，会有一些老师的 UniID 仍然是 null，需要手动更正（写入 teachers.json 即可），并且将 EamsID 手动清空或者届时删除。
