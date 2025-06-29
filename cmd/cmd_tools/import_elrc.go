@@ -315,81 +315,67 @@ func processCourseWithSemester(tx *gorm.DB, courseInfo CourseInfo, semInfo Semes
 		if err != nil {
 			return err
 		}
-		other_teachers := []int{models.TEACHER_OTHER_ID}
-		_, err = queries.AddCourseGroup(tx, "", int(course.ID), other_teachers)
-		if err != nil {
-			return errors.Wrap(err, errors.DatabaseError)
+		// 处理教师信息
+		var teacherIDs []int
+		teachers := make(map[string]string)
+		for i, uniIDStr := range courseInfo.Teacher {
+			if i < len(courseInfo.TeacherNames) {
+				teachers[uniIDStr] = courseInfo.TeacherNames[i]
+			}
 		}
+		for uniIDStr, teacherName := range teachers {
+			uniID, err := strconv.Atoi(uniIDStr)
+			if err != nil {
+				syslog.Printf("Warning: invalid UniID '%s' for teacher '%s', skipping\n", uniIDStr, teacherName)
+				continue
+			}
+			teacher, err := findOrCreateTeacherByUniID(tx, uniID, teacherName, institute)
+			if err != nil {
+				syslog.Printf("Error handling teacher %s (UniID: %d): %v\n", teacherName, uniID, err)
+				continue
+			}
+			teacherIDs = append(teacherIDs, int(teacher.ID))
+		}
+		if len(teacherIDs) == 0 {
+			teacherIDs = []int{models.TEACHER_OTHER_ID}
+		}
+
+		// 检查是否有教师ID完全一致的课程组（顺序无关）
+		var data []struct {
+			CourseGroupID int
+			ArrayAgg      []int
+		}
+		tx.Raw(`select course_groups.id as course_group_id, array_agg(coursegroup_teachers.teacher_id) as array_agg from course_groups
+			inner join coursegroup_teachers on course_groups.id = coursegroup_teachers.course_group_id
+			where course_groups.course_id=? group by course_groups.id;`, course.ID).Scan(&data)
+		sort.Ints(teacherIDs)
+		for _, c := range data {
+			tids := append([]int(nil), c.ArrayAgg...)
+			sort.Ints(tids)
+			if len(tids) == len(teacherIDs) {
+				match := true
+				for i := range tids {
+					if tids[i] != teacherIDs[i] {
+						match = false
+						break
+					}
+				}
+				if match {
+					syslog.Printf("Skip adding course group: identical teacher set already exists (group id: %d)\n", c.CourseGroupID)
+					return nil
+				}
+			}
+		}
+		group, err := queries.AddCourseGroup(tx, "", int(course.ID), teacherIDs) // TODO: 这里的 code 省略了，因为会重复（学期/班级不同但是老师配置相同）
+		if err != nil {
+			return err
+		}
+		syslog.Printf("Add course group %s %d %d (semester: %s, serialNumber: %s)\n",
+			courseInfo.CourseNumber, course.ID, group.ID, semInfo.FullLabel, courseInfo.SerialNumber)
+		time.Sleep(50 * time.Millisecond)
 	} else {
 		syslog.Printf("Find course %s %d\n", courseInfo.CourseNumber, course.ID)
 	}
-	// 检查课程组是否已存在 (基于semester+serialNumber的唯一性)
-	groupCode := fmt.Sprintf("%s-%s", semInfo.FullLabel, courseInfo.SerialNumber)
-	existingGroup := &models.CourseGroup{}
-	err = tx.Where("code = ? AND course_id = ?", groupCode, course.ID).Take(existingGroup).Error
-	if err == nil {
-		syslog.Printf("Course group already exists: %s\n", groupCode)
-		return nil
-	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-	// 处理教师信息
-	var teacherIDs []int
-	teachers := make(map[string]string)
-	for i, uniIDStr := range courseInfo.Teacher {
-		if i < len(courseInfo.TeacherNames) {
-			teachers[uniIDStr] = courseInfo.TeacherNames[i]
-		}
-	}
-	for uniIDStr, teacherName := range teachers {
-		uniID, err := strconv.Atoi(uniIDStr)
-		if err != nil {
-			syslog.Printf("Warning: invalid UniID '%s' for teacher '%s', skipping\n", uniIDStr, teacherName)
-			continue
-		}
-		teacher, err := findOrCreateTeacherByUniID(tx, uniID, teacherName, institute)
-		if err != nil {
-			syslog.Printf("Error handling teacher %s (UniID: %d): %v\n", teacherName, uniID, err)
-			continue
-		}
-		teacherIDs = append(teacherIDs, int(teacher.ID))
-	}
-	if len(teacherIDs) == 0 {
-		teacherIDs = []int{models.TEACHER_OTHER_ID}
-	}
-	var data []struct {
-		CourseGroupID int
-		ArrayAgg      []int
-	}
-	tx.Raw(`select course_groups.id as course_group_id, array_agg(coursegroup_teachers.teacher_id) as array_agg from course_groups
-		inner join coursegroup_teachers on course_groups.id = coursegroup_teachers.course_group_id
-		where course_groups.course_id=? group by course_groups.id;`, course.ID).Scan(&data)
-	sort.Ints(teacherIDs)
-	for _, c := range data {
-		tids := append([]int(nil), c.ArrayAgg...)
-		sort.Ints(tids)
-		if len(tids) == len(teacherIDs) {
-			match := true
-			for i := range tids {
-				if tids[i] != teacherIDs[i] {
-					match = false
-					break
-				}
-			}
-			if match {
-				syslog.Printf("Skip adding course group: identical teacher set already exists (group id: %d)\n", c.CourseGroupID)
-				return nil
-			}
-		}
-	}
-	group, err := queries.AddCourseGroup(tx, "", int(course.ID), teacherIDs) // TODO: 这里的 code 省略了，因为会重复（学期/班级不同但是老师配置相同）
-	if err != nil {
-		return err
-	}
-	syslog.Printf("Add course group %s %d %d (semester: %s, serialNumber: %s)\n",
-		courseInfo.CourseNumber, course.ID, group.ID, semInfo.FullLabel, courseInfo.SerialNumber)
-	time.Sleep(50 * time.Millisecond)
 	return nil
 }
 

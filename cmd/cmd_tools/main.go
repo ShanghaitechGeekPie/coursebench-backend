@@ -114,6 +114,8 @@ func main() {
 		}
 		semester := args[2]
 		ImportELRCWithSemester(semester)
+	case "rm_duplicate_group":
+		RmDuplicateCourseGroup()
 	default:
 		syslog.Fatal("Unknown command!")
 	}
