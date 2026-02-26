@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"coursebench-backend/internal/controllers/users"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,4 +36,8 @@ func UserRoutes(r fiber.Router) {
 	route.Post("/reset_password", users.ResetPassword)
 	route.Post("/reset_password_active", users.ResetPasswordActive)
 	route.Get("/my_id", users.MyID)
+	route.Get("/casdoor/login", users.CasdoorLogin)
+	route.Get("/casdoor/bind", users.CasdoorBind)
+	route.Get("/casdoor/callback", users.CasdoorCallback)
+	route.Post("/casdoor/unbind", users.CasdoorUnbind)
 }

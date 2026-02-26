@@ -26,7 +26,9 @@ import (
 
 func Routes(app *fiber.App) {
 	route := app.Group("/v1")
-	route.Use(cors.New())
+	route.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+	}))
 	controllers.UserRoutes(route)
 	if config.GlobalConf.InDevelopment {
 		controllers.TestRoutes(route)
