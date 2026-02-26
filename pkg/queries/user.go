@@ -22,6 +22,8 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
+	crand "crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -518,4 +520,151 @@ func GetUserByInvitationCode(db *gorm.DB, code string) (*models.User, error) {
 	}
 
 	return user, nil
+}
+
+func GetUserByEmail(db *gorm.DB, email string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	user := &models.User{}
+	result := db.Where("email = ?", email).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New(errors.UserNotExists)
+	}
+
+	return user, nil
+}
+
+func GetUserByCasdoorSub(db *gorm.DB, casdoorSub string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	user := &models.User{}
+	result := db.Where("casdoor_sub = ?", casdoorSub).Take(user)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New(errors.UserNotExists)
+	}
+
+	return user, nil
+}
+
+func BindCasdoorIdentity(db *gorm.DB, userID uint, casdoorSub string) error {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	if casdoorSub == "" {
+		return errors.New(errors.InvalidArgument)
+	}
+
+	boundUser := &models.User{}
+	result := db.Where("casdoor_sub = ?", casdoorSub).Take(boundUser)
+	if err := result.Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+	if result.RowsAffected > 0 && boundUser.ID != userID {
+		return errors.New(errors.UserAlreadyExists)
+	}
+
+	user, err := GetUserByID(db, userID)
+	if err != nil {
+		return err
+	}
+	user.CasdoorSub = casdoorSub
+	if err = db.Select("casdoor_sub").Save(user).Error; err != nil {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+
+	return nil
+}
+
+func UnbindCasdoorIdentity(db *gorm.DB, userID uint) error {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	user, err := GetUserByID(db, userID)
+	if err != nil {
+		return err
+	}
+	user.CasdoorSub = ""
+	if err = db.Select("casdoor_sub").Save(user).Error; err != nil {
+		return errors.Wrap(err, errors.DatabaseError)
+	}
+
+	return nil
+}
+
+func CreateOAuthUser(db *gorm.DB, email string, nickname string, realname string, casdoorSub string) (*models.User, error) {
+	if db == nil {
+		db = database.GetDB()
+	}
+
+	if casdoorSub == "" {
+		return nil, errors.New(errors.InvalidArgument)
+	}
+
+	passwordRaw, err := generateRandomPasswordToken(24)
+	if err != nil {
+		return nil, err
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(passwordRaw), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.Wrap(err, errors.InternalServerError)
+	}
+
+	if email == "" {
+		email = fmt.Sprintf("oauth_%s@invalid.local", strings.ReplaceAll(casdoorSub, "/", "_"))
+	}
+	if nickname == "" {
+		nickname = strings.Split(email, "@")[0]
+	}
+	if realname == "" {
+		realname = nickname
+	}
+
+	code, err := createInvitationCode(db)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &models.User{
+		Email:          email,
+		CasdoorSub:     casdoorSub,
+		Password:       string(hash),
+		NickName:       nickname,
+		RealName:       realname,
+		Year:           0,
+		Grade:          models.UnknownGrade,
+		IsActive:       true,
+		IsAnonymous:    false,
+		IsAdmin:        false,
+		InvitationCode: code,
+	}
+
+	if err = db.Create(user).Error; err != nil {
+		return nil, errors.Wrap(err, errors.DatabaseError)
+	}
+
+	return user, nil
+}
+
+func generateRandomPasswordToken(bytesLen int) (string, error) {
+	if bytesLen <= 0 {
+		return "", errors.New(errors.InvalidArgument)
+	}
+	b := make([]byte, bytesLen)
+	_, err := crand.Read(b)
+	if err != nil {
+		return "", errors.Wrap(err, errors.InternalServerError)
+	}
+	return hex.EncodeToString(b), nil
 }
