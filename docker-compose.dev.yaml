@@ -1,0 +1,31 @@
+services:
+  backend:
+    build: .
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "10001:5000"
+    environment:
+      - TZ=Asia/Shanghai
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=coursebench
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=coursebench
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
