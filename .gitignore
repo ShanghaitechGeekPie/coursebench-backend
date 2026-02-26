@@ -4,3 +4,4 @@ config.json
 data_import
 coursebench.log
 /data
+postgres_data

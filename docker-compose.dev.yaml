@@ -28,4 +28,9 @@ services:
       - "6379:6379"
 
 volumes:
-  postgres_data:
+  postgres_data: # set to current folder
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/postgres_data
+      o: bind
