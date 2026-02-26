@@ -37,6 +37,14 @@ func CheckCommentContent(content string) bool {
 	return true
 }
 
+func CheckReplyContent(content string) bool {
+	length := len(content)
+	if length == 0 || length > 50000 {
+		return false
+	}
+	return true
+}
+
 func CheckSemester(semester int) bool {
 	if semester < 0 || semester > 1000000 {
 		return false

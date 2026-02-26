@@ -27,6 +27,8 @@ func CommentRoutes(r fiber.Router) {
 	route.Post("/post", comments.Post)
 	route.Post("/update", comments.Update)
 	route.Post("/delete", comments.Delete)
+	route.Post("/:id/reply", comments.ReplyPost)
+	route.Get("/:id/replies", comments.ReplyList)
 	route.Get("/user/:id", comments.UserComment)
 	route.Get("/course_group/:id", comments.CourseGroupComment)
 	route.Get("/course/:id", comments.CourseComment)
@@ -35,4 +37,10 @@ func CommentRoutes(r fiber.Router) {
 	route.Post("/like", comments.Like)
 	route.Post("/fold", comments.Fold)
 	route.Post("/cover", comments.Cover)
+
+	replyRoute := r.Group("/reply")
+	replyRoute.Get("/:id/chain", comments.ReplyChain)
+	replyRoute.Post("/like", comments.ReplyLike)
+	replyRoute.Post("/update", comments.ReplyUpdate)
+	replyRoute.Post("/delete", comments.ReplyDelete)
 }

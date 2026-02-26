@@ -57,7 +57,33 @@ type CommentLike struct {
 	IsLike    bool `gorm:"index"`
 }
 
+type Reply struct {
+	gorm.Model
+	CommentID     uint `gorm:"index"`
+	Comment       Comment
+	ParentReplyID *uint `gorm:"index"`
+	ParentReply   *Reply
+	UserID        uint `gorm:"index"`
+	User          User
+	Content       string
+	IsAnonymous   bool
+	Like          int
+	Dislike       int
+	CreateTime    int
+	UpdateTime    int
+	IsFold        bool `gorm:"default:false"`
+}
+
+type ReplyLike struct {
+	gorm.Model
+	UserID  uint `gorm:"index"`
+	ReplyID uint `gorm:"index"`
+	IsLike  bool `gorm:"index"`
+}
+
 func init() {
 	modelRegister.Register(&Comment{})
 	modelRegister.Register(&CommentLike{})
+	modelRegister.Register(&Reply{})
+	modelRegister.Register(&ReplyLike{})
 }
