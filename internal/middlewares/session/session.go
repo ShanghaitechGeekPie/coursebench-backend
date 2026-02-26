@@ -21,10 +21,11 @@ import (
 	"coursebench-backend/internal/config"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"time"
 )
 
 var store *session.Store
@@ -59,7 +60,13 @@ func (r *RedisStore) Set(key string, value []byte, ttl time.Duration) error {
 
 func Init() {
 	redis := database.GetSessionRedis()
-	store = session.New(session.Config{Expiration: time.Hour * 24 * 30, CookieHTTPOnly: !config.GlobalConf.InDevelopment, CookieSecure: !config.GlobalConf.InDevelopment, Storage: &RedisStore{db: redis}})
+	store = session.New(session.Config{
+		Expiration:     time.Hour * 24 * 30,
+		CookieHTTPOnly: !config.GlobalConf.InDevelopment,
+		CookieSecure:   false, // Must be false for http://127.0.0.1
+		CookieSameSite: "Lax",
+		Storage:        &RedisStore{db: redis},
+	})
 }
 
 func GetStore() *session.Store {

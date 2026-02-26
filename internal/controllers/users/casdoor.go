@@ -48,7 +48,13 @@ func CasdoorCallback(c *fiber.Ctx) (err error) {
 	}
 
 	state := c.Query("state")
-	if state == "" || state != readStringSession(sess.Get(casdoorStateKey)) {
+	storedState := readStringSession(sess.Get(casdoorStateKey))
+
+	// Debug logging
+	fmt.Printf("[DEBUG] OAuth Callback - state=%s, stored_state=%s, session_id=%s\n",
+		state, storedState, sess.ID())
+
+	if state == "" || state != storedState {
 		return errors.New(errors.InvalidArgument)
 	}
 
@@ -160,12 +166,24 @@ func startCasdoorFlow(c *fiber.Ctx, bind bool) error {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
 
+	// For bind flow, preserve the user_id across regeneration
+	var bindUserID uint
 	if bind {
 		id, e := session.GetUserID(c)
 		if e != nil {
 			return e
 		}
-		sess.Set(casdoorBindUserIDKey, id)
+		bindUserID = id
+	}
+
+	// Regenerate session to ensure we have a valid session ID
+	if err := sess.Regenerate(); err != nil {
+		return errors.Wrap(err, errors.InternalServerError)
+	}
+
+	if bind {
+		sess.Set("user_id", bindUserID)
+		sess.Set(casdoorBindUserIDKey, bindUserID)
 	} else {
 		sess.Delete(casdoorBindUserIDKey)
 	}
@@ -184,6 +202,10 @@ func startCasdoorFlow(c *fiber.Ctx, bind bool) error {
 	if err = sess.Save(); err != nil {
 		return errors.Wrap(err, errors.InternalServerError)
 	}
+
+	// Debug logging
+	fmt.Printf("[DEBUG] OAuth Start - state=%s, session_id=%s, bind=%v\n",
+		state, sess.ID(), bind)
 
 	authURL := buildCasdoorSigninURL(state, getCasdoorRedirectURI())
 	return c.Redirect(authURL, http.StatusFound)
