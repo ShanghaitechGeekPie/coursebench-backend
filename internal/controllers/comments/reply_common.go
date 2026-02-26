@@ -16,8 +16,8 @@ type ReplyUserResponse struct {
 }
 
 type ReplyTargetResponse struct {
-	ReplyID uint              `json:"reply_id"`
-	User    ReplyUserResponse `json:"user"`
+	ReplyID uint               `json:"reply_id"`
+	User    *ReplyUserResponse `json:"user"`
 }
 
 type ReplyResponse struct {
@@ -32,7 +32,7 @@ type ReplyResponse struct {
 	LikeStatus    int                  `json:"like_status"`
 	IsAnonymous   bool                 `json:"is_anonymous"`
 	HasSubReplies bool                 `json:"has_sub_replies"`
-	User          ReplyUserResponse    `json:"user"`
+	User          *ReplyUserResponse   `json:"user"`
 	ReplyTo       *ReplyTargetResponse `json:"reply_to,omitempty"`
 }
 
@@ -53,22 +53,17 @@ type ReplyChainResponse struct {
 	Descendants []ReplyTreeNode `json:"descendants"`
 }
 
-func buildReplyUserResponse(db *gorm.DB, userID uint, isAnonymous bool, queryingUserID uint) (ReplyUserResponse, error) {
+func buildReplyUserResponse(db *gorm.DB, userID uint, isAnonymous bool, queryingUserID uint) (*ReplyUserResponse, error) {
 	if isAnonymous && userID != queryingUserID {
-		return ReplyUserResponse{
-			ID:          0,
-			NickName:    "匿名用户",
-			Avatar:      "",
-			IsAnonymous: true,
-		}, nil
+		return nil, nil
 	}
 
 	profile, err := queries.GetProfile(db, userID, queryingUserID)
 	if err != nil {
-		return ReplyUserResponse{}, err
+		return nil, err
 	}
 
-	return ReplyUserResponse{
+	return &ReplyUserResponse{
 		ID:          profile.ID,
 		NickName:    profile.NickName,
 		Avatar:      profile.Avatar,
