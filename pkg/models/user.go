@@ -68,4 +68,5 @@ type ProfileResponse struct {
 	IsCommunityAdmin bool      `json:"is_community_admin"`
 	InvitationCode   string    `json:"invitation_code"`
 	Reward           int       `json:"reward"`
+	HasCasdoorBound  bool      `json:"has_casdoor_bound"`
 }

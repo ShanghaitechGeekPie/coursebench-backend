@@ -404,6 +404,11 @@ func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.Pr
 		r.Reward = -1
 	}
 
+	// Only show Casdoor binding status when viewing own profile
+	if queryingUserID == queriedUserID {
+		r.HasCasdoorBound = user.CasdoorSub != ""
+	}
+
 	return r, nil
 }
 
