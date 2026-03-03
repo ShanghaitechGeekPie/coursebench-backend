@@ -28,7 +28,7 @@ import (
 
 // 更新数据库
 func UpgradeDB() {
-	CurrentDBVersion := 3
+	CurrentDBVersion := 5
 	db := database.GetDB()
 	var metadata models.Metadata
 	err := db.Take(&metadata).Error
@@ -53,7 +53,11 @@ func UpgradeDB() {
 	case 3:
 		log.Println("Upgrading database version from 3 to 4...")
 		UpgradeDBFrom3To4()
+		fallthrough
 	case 4:
+		log.Println("Upgrading database version from 4 to 5...")
+		UpgradeDBFrom4To5()
+	case 5:
 	default:
 		log.Panicf("The version of database is: %d, which is newer than the backend.", metadata.DBVersion)
 	}
@@ -120,6 +124,48 @@ func UpgradeDBFrom3To4() {
 		if err != nil {
 			return errors.Wrap(err, errors.DatabaseError)
 		}
+		return nil
+	})
+	if err != nil {
+		log.Panicln(err)
+	}
+}
+
+func UpgradeDBFrom4To5() {
+	db := database.GetDB()
+	// 升级到v5：添加成就系统的唯一约束
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// 为 user_achievements 表添加唯一约束（如果表已存在）
+		// GORM 的 AutoMigrate 会自动创建表，但我们需要确保唯一约束存在
+
+		// 如果表已存在，添加唯一索引（处理已有数据的情况）
+		// 首先删除可能存在的重复数据
+		result := tx.Exec(`
+			DELETE FROM user_achievements a USING (
+				SELECT MIN(id) as id, user_id, achievement_id
+				FROM user_achievements 
+				GROUP BY user_id, achievement_id HAVING COUNT(*) > 1
+			) b
+			WHERE a.user_id = b.user_id 
+			AND a.achievement_id = b.achievement_id 
+			AND a.id <> b.id
+		`)
+		if result.Error != nil {
+			// 表可能不存在，这是正常的
+			log.Println("Note: user_achievements table may not exist yet, will be created by AutoMigrate")
+		}
+
+		// 添加唯一索引（如果不存在）
+		result = tx.Exec(`
+			CREATE UNIQUE INDEX IF NOT EXISTS idx_user_achievement 
+			ON user_achievements(user_id, achievement_id) 
+			WHERE deleted_at IS NULL
+		`)
+		if result.Error != nil {
+			// 索引可能已存在或表不存在
+			log.Println("Note: unique index creation skipped or already exists")
+		}
+
 		return nil
 	})
 	if err != nil {

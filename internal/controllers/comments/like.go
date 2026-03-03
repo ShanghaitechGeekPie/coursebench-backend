@@ -21,6 +21,8 @@ import (
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/models"
+	"coursebench-backend/pkg/queries"
+
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -86,6 +88,14 @@ func Like(c *fiber.Ctx) (err error) {
 				}
 				if err != nil {
 					return errors.Wrap(err, errors.DatabaseError)
+				}
+
+				// 如果是点赞，异步触发被点赞者的成就检查
+				if request.Status == 1 {
+					go func() {
+						db := database.GetDB()
+						_ = queries.CheckAndGrantAchievements(db, comment.UserID, "like_received", 1)
+					}()
 				}
 			}
 		} else {

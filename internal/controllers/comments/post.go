@@ -164,6 +164,13 @@ func Post(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	// 异步触发成就检查（在goroutine中执行，避免阻塞主流程）
+	go func() {
+		db := database.GetDB()
+		// 检查评论相关成就
+		_ = queries.CheckAndGrantAchievements(db, uid, "comment", 1)
+	}()
+
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  map[string]interface{}{"comment_id": comment.ID},
 		Error: false,

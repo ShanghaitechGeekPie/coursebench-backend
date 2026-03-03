@@ -14,28 +14,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
 
-package fiber
+package controllers
 
 import (
-	"coursebench-backend/internal/config"
-	"coursebench-backend/internal/controllers"
+	"coursebench-backend/internal/controllers/achievement"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-func Routes(app *fiber.App) {
-	route := app.Group("/v1")
-	route.Use(cors.New(cors.Config{
-		AllowCredentials: true,
-	}))
-	controllers.UserRoutes(route)
-	if config.GlobalConf.InDevelopment {
-		controllers.TestRoutes(route)
-	}
-	controllers.CourseRoutes(route)
-	controllers.CommentRoutes(route)
-	controllers.TeacherRoute(route)
-	controllers.RewardRoutes(route)
-	controllers.AchievementRoutes(route)
+func AchievementRoutes(r fiber.Router) {
+	route := r.Group("/achievement")
+
+	// 用户相关接口
+	route.Get("/list", achievement.List)                 // 获取当前用户的成就列表
+	route.Get("/stats", achievement.Stats)               // 获取当前用户的成就统计
+	route.Get("/user/:id", achievement.UserAchievements) // 获取指定用户的公开成就
+
+	// 管理员接口
+	route.Post("/admin/initialize", achievement.AdminInitialize)   // 初始化默认成就
+	route.Post("/admin/recalculate", achievement.AdminRecalculate) // 重新计算用户成就
 }
