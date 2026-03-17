@@ -17,34 +17,32 @@
 package main
 
 import (
-	"coursebench-backend/internal/config"
-	"coursebench-backend/internal/fiber"
 	"coursebench-backend/pkg/database"
-	"coursebench-backend/pkg/database/upgrade"
-	"coursebench-backend/pkg/log"
-	"coursebench-backend/pkg/mail"
-	"coursebench-backend/pkg/modelRegister"
-	_ "coursebench-backend/pkg/models"
-	_ "github.com/joho/godotenv/autoload"
+	"coursebench-backend/pkg/kb"
+	syslog "log"
+	"strconv"
 )
 
-func main() {
-	config.SetupViper()
-	log.InitLog()
-	database.InitDB()
-	database.InitRedis()
-	database.InitMinio()
-	database.InitS3()
-	mail.InitSMTP()
+// ExportKB exports all courses with comments to S3 as RAG-friendly markdown
+func ExportKB() {
 	db := database.GetDB()
-	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
+	err := kb.ExportAllCourses(db)
 	if err != nil {
-		log.Panicln(err)
+		syslog.Fatalf("Failed to export knowledge base: %v\n", err)
 	}
-	upgrade.UpgradeDB()
-	app := fiber.New()
-	fiber.Routes(app)
-	if err := app.Listen(config.FiberConfig.Listen); err != nil {
-		panic(err)
+	syslog.Println("Knowledge base export completed successfully")
+}
+
+// ExportKBCourse exports a single course to S3 as RAG-friendly markdown
+func ExportKBCourse(courseIDStr string) {
+	courseID, err := strconv.Atoi(courseIDStr)
+	if err != nil {
+		syslog.Fatalf("Invalid course ID: %s\n", courseIDStr)
 	}
+	db := database.GetDB()
+	err = kb.ExportSingleCourse(db, uint(courseID))
+	if err != nil {
+		syslog.Fatalf("Failed to export course %d: %v\n", courseID, err)
+	}
+	syslog.Printf("Course %d exported successfully\n", courseID)
 }

@@ -20,6 +20,7 @@ import (
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/kb"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"time"
@@ -163,6 +164,8 @@ func Post(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
+
+	kb.OnCourseCommentChanged(db, group.CourseID)
 
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  map[string]interface{}{"comment_id": comment.ID},

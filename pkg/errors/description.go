@@ -33,6 +33,7 @@ var (
 	RedisError          = createDescription("RedisError", "服务器内部错误", ERROR)
 	DatabaseError       = createDescription("DatabaseError", "服务器内部错误", ERROR)
 	MinIOError          = createDescription("MinIOError", "服务器内部错误", ERROR)
+	S3Error             = createDescription("S3Error", "知识库存储服务错误", ERROR)
 	GobEncodingError    = createDescription("GobEncodingError", "服务器内部错误", ERROR)
 	GobDecodingError    = createDescription("GobDecodingError", "服务器内部错误", ERROR)
 	GPTWorkerError      = createDescription("GPTWorkerError", "GPT Worker 出错", ERROR)

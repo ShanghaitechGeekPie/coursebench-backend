@@ -14,37 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with CourseBench Backend.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package kb
 
 import (
-	"coursebench-backend/internal/config"
-	"coursebench-backend/internal/fiber"
 	"coursebench-backend/pkg/database"
-	"coursebench-backend/pkg/database/upgrade"
-	"coursebench-backend/pkg/log"
-	"coursebench-backend/pkg/mail"
-	"coursebench-backend/pkg/modelRegister"
-	_ "coursebench-backend/pkg/models"
-	_ "github.com/joho/godotenv/autoload"
+	syslog "log"
+
+	"gorm.io/gorm"
 )
 
-func main() {
-	config.SetupViper()
-	log.InitLog()
-	database.InitDB()
-	database.InitRedis()
-	database.InitMinio()
-	database.InitS3()
-	mail.InitSMTP()
-	db := database.GetDB()
-	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
-	if err != nil {
-		log.Panicln(err)
+// OnCourseCommentChanged is called asynchronously when a comment is posted, updated, or deleted.
+// It regenerates the markdown for the affected course and uploads it to S3.
+func OnCourseCommentChanged(db *gorm.DB, courseID uint) {
+	if !database.IsS3Enabled() {
+		return
 	}
-	upgrade.UpgradeDB()
-	app := fiber.New()
-	fiber.Routes(app)
-	if err := app.Listen(config.FiberConfig.Listen); err != nil {
-		panic(err)
-	}
+	go func() {
+		err := ExportSingleCourse(db, courseID)
+		if err != nil {
+			syslog.Printf("[KB] Failed to update knowledge base for course %d: %v\n", courseID, err)
+		} else {
+			syslog.Printf("[KB] Updated knowledge base for course %d\n", courseID)
+		}
+	}()
 }

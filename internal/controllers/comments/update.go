@@ -20,6 +20,7 @@ import (
 	"coursebench-backend/internal/middlewares/session"
 	"coursebench-backend/pkg/database"
 	"coursebench-backend/pkg/errors"
+	"coursebench-backend/pkg/kb"
 	"coursebench-backend/pkg/models"
 	"coursebench-backend/pkg/queries"
 	"github.com/gofiber/fiber/v2"
@@ -109,6 +110,8 @@ func Update(c *fiber.Ctx) (err error) {
 
 		return nil
 	})
+
+	kb.OnCourseCommentChanged(db, comment.CourseID)
 
 	return c.Status(fiber.StatusOK).JSON(models.OKResponse{
 		Data:  nil,

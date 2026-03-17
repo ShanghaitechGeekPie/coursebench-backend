@@ -27,6 +27,15 @@
     "endpoint2": "s3.geekpie.club",
     "ip": ["59.78.171.210","119.78.254.2"]
   },
+  "s3": {
+    "endpoint": "s3.example.com",
+    "access_key": "",
+    "secret_key": "",
+    "bucket": "coursebench-kb",
+    "region": "",
+    "secure": true,
+    "prefix": "kb"
+  },
   "postgres": {
     "host": "127.0.0.1",
     "port": 5432,

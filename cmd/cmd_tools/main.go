@@ -33,6 +33,7 @@ func main() {
 	database.InitDB()
 	database.InitRedis()
 	database.InitMinio()
+	database.InitS3()
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {
@@ -116,6 +117,13 @@ func main() {
 		ImportELRCWithSemester(semester)
 	case "rm_duplicate_group":
 		RmDuplicateCourseGroup()
+	case "export_kb":
+		ExportKB()
+	case "export_kb_course":
+		if len(args) < 3 {
+			syslog.Fatalln("Missing parameters <course id>")
+		}
+		ExportKBCourse(args[2])
 	default:
 		syslog.Fatal("Unknown command!")
 	}
