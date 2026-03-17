@@ -19,11 +19,12 @@ package database
 import (
 	"context"
 	"coursebench-backend/pkg/errors"
+	"io"
+	syslog "log"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/spf13/viper"
-	"io"
-	syslog "log"
 )
 
 type S3Config struct {
