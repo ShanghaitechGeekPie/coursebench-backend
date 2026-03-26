@@ -5,7 +5,6 @@
     "disable_mail": false,
     "service_name":"CourseBench Backend",
     "server_url": "http://127.0.0.1:10001",
-    "avatar_size_limit": 1048576,
     "mail_suffix": "@shanghaitech.edu.cn",
     "casdoor_endpoint": "https://auth.geekpie.club",
     "casdoor_client_id": "",
@@ -19,20 +18,13 @@
     "service_name":"GeekPie_ CourseBench 评教平台",
     "service_name_en":"GeekPie_ CourseBench"
   },
-  "minio": {
-    "username": "course-bench",
-    "password": "123456",
-    "bucket": "course-bench",
-    "endpoint": "cdn.geekpie.club",
-    "endpoint2": "s3.geekpie.club",
-    "ip": ["59.78.171.210","119.78.254.2"]
-  },
   "postgres": {
     "host": "127.0.0.1",
     "port": 5432,
     "username": "coursebench",
     "password": "123456",
-    "database": "coursebench"
+    "database": "coursebench",
+    "ssl": "require"
   },
   "smtp": {
     "address": "geekpie@geekpie.club",
@@ -45,7 +37,9 @@
   },
   "redis": {
     "host": "127.0.0.1",
-    "port": 6379
+    "port": 6379,
+    "password": "",
+    "tls": false
   },
   "fiber": {
     "listen": "127.0.0.1:10001",

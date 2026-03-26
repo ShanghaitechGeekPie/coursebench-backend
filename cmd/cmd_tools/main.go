@@ -32,7 +32,6 @@ func main() {
 	syslog.Println("Backend Command Line Tool Starting...")
 	database.InitDB()
 	database.InitRedis()
-	database.InitMinio()
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
 	if err != nil {

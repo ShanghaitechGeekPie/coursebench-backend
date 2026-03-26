@@ -39,7 +39,8 @@ func (r *RedisStore) Delete(key string) error {
 }
 
 func (r *RedisStore) Reset() error {
-	return r.db.FlushDB(context.Background()).Err()
+	// No-op: FlushDB would wipe all keys on a shared single-database Redis (Upstash).
+	return nil
 }
 
 func (r *RedisStore) Close() error {

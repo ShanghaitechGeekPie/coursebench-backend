@@ -19,7 +19,7 @@ services:
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=coursebench
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - .postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine

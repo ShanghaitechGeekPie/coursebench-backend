@@ -22,6 +22,7 @@ import (
 	"coursebench-backend/pkg/errors"
 	"coursebench-backend/pkg/mail"
 	"coursebench-backend/pkg/models"
+	"crypto/md5"
 	crand "crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -375,8 +376,9 @@ func GetProfile(db *gorm.DB, queriedUserID uint, queryingUserID uint) (models.Pr
 	}
 
 	avatar := ""
-	if user.Avatar != "" {
-		avatar = fmt.Sprintf("https://%s/%s/avatar/%s", database.GetEndpoint(), database.MinioConf.Bucket, user.Avatar)
+	if user.Email != "" {
+		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(user.Email))))
+		avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%x?d=identicon&s=200", hash)
 	}
 	r := models.ProfileResponse{
 		ID:               user.ID,

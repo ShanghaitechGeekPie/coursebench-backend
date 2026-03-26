@@ -23,6 +23,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	syslog "log"
+	"strings"
 	"time"
 )
 
@@ -49,9 +50,9 @@ func InitDB() {
 		syslog.Println("Postgres config not found")
 		return
 	}
-	config.SetDefault("ssl", "disable")
+	config.SetDefault("ssl", "require")
 	config.SetDefault("timezone", "Asia/Shanghai")
-	config.SetDefault("max_open_connections", 16)
+	config.SetDefault("max_open_connections", 5)
 	config.SetDefault("max_idle_connections", 4)
 	config.SetDefault("connection_max_lifetime", "4m")
 
@@ -98,6 +99,13 @@ func newPostgreSQLConnection(dbname string, logLevel logger.LogLevel) (*gorm.DB,
 	timezone := postgresConfig.Timezone
 	// Define database connection for PostgreSQL.
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s", host, user, password, dbname, port, ssl, timezone)
+	// Neon requires endpoint ID via SNI or options parameter for older libpq/drivers.
+	// Extract endpoint ID from pooler host (e.g. "ep-xxx-pooler.region.neon.tech" → "ep-xxx").
+	if strings.Contains(host, ".neon.tech") {
+		endpointID := strings.Split(host, ".")[0]
+		endpointID = strings.TrimSuffix(endpointID, "-pooler")
+		dsn += fmt.Sprintf(" options=endpoint=%s", endpointID)
+	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.New(
 			syslog.Default(),

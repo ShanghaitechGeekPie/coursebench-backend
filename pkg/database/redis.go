@@ -18,6 +18,7 @@ package database
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
@@ -34,11 +35,10 @@ func GetSessionRedis() *redis.Client {
 }
 
 type RedisConfig struct {
-	Host            string `mapstructure:"host"`
-	Port            int    `mapstructure:"port"`
-	Password        string `mapstructure:"password"`
-	MaxMemory       string `mapstructure:"max_memory"`
-	MaxMemoryPolicy string `mapstructure:"max_memory_policy"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Password string `mapstructure:"password"`
+	TLS      bool   `mapstructure:"tls"`
 }
 
 var redisConfig RedisConfig
@@ -50,27 +50,27 @@ func InitRedis() {
 	}
 
 	config.SetDefault("password", "")
-	config.SetDefault("max_memory", "32GB")
-	config.SetDefault("max_memory_policy", "volatile-lru")
+	config.SetDefault("tls", true)
 	err := config.Unmarshal(&redisConfig)
 	if err != nil {
 		panic(err)
 	}
-	redisClient = make([]*redis.Client, 2)
-	for i := 0; i < 2; i++ {
-		redisClient[i] = redis.NewClient(&redis.Options{
-			Addr:     fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-			Password: redisConfig.Password,
-			DB:       i,
-		})
-		if err := redisClient[i].Ping(context.Background()).Err(); err != nil {
-			panic(err)
-		}
-		if err := redisClient[i].ConfigSet(context.Background(), "maxmemory", redisConfig.MaxMemory).Err(); err != nil {
-			panic(err)
-		}
-		if err := redisClient[i].ConfigSet(context.Background(), "maxmemory-policy", redisConfig.MaxMemoryPolicy).Err(); err != nil {
-			panic(err)
-		}
+
+	opts := &redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
+		Password: redisConfig.Password,
+		DB:       0,
 	}
+	if redisConfig.TLS {
+		opts.TLSConfig = &tls.Config{}
+	}
+
+	client := redis.NewClient(opts)
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		panic(err)
+	}
+
+	redisClient = make([]*redis.Client, 2)
+	redisClient[0] = client
+	redisClient[1] = client
 }

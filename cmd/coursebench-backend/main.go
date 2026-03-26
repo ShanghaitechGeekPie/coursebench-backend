@@ -33,7 +33,6 @@ func main() {
 	log.InitLog()
 	database.InitDB()
 	database.InitRedis()
-	database.InitMinio()
 	mail.InitSMTP()
 	db := database.GetDB()
 	err := db.Migrator().AutoMigrate(modelRegister.GetRegisteredTypes()...)
